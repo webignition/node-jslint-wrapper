@@ -38,8 +38,14 @@ class Configuration {
      *
      * @var array
      */
-    private $options = array();    
+    private $options = array();
     
+    
+    /**
+     *
+     * @var string
+     */
+    private $urlToLint = null;    
     
     /**
      * 
@@ -155,5 +161,33 @@ class Configuration {
     private function isValidOption($name) {
         return in_array($name, JsLintOption::getList());
     } 
+    
+    
+    /**
+     * 
+     * @param string $url
+     */
+    public function setUrlToLint($url) {
+        $this->urlToLint = $url;
+        return $this;
+    }
+    
+    
+    /**
+     * 
+     * @return string
+     */
+    public function getUrlToLint() {
+        return $this->urlToLint;
+    }
+    
+    
+    /**
+     * 
+     * @return boolean
+     */
+    public function hasUrlToLint() {
+        return !is_null($this->urlToLint);
+    }
     
 }
