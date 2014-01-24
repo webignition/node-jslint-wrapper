@@ -12,7 +12,8 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase {
      *
      * @var string
      */
-    private $fixturePath = null;    
+    private $fixturePath = null;
+    
 
     /**
      * 
