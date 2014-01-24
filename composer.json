@@ -1,0 +1,28 @@
+{
+    "name": "webignition/node-jslint-wrapper",
+    "description": "Wrapper for the nodejs jslint wrapper. I heard you liked wrappers ...",
+    "keywords": ["jslint", "wrapper"],
+    "homepage": "https://github.com/webignition/node-jslint-wrapper",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jon Cram",
+            "email": "jon@webignition.net"
+        }
+    ],
+    "autoload": {
+        "psr-0": {
+            "webignition\\Tests": "tests/",
+            "": "src/"
+        }
+    },   
+    "require": {
+        "php": ">=5.3.0"
+    },
+    "require-dev": {
+        "symfony/class-loader": "*",
+        "phpunit/phpunit": "3.7.*"
+    },            
+    "minimum-stability":"stable"
+}
