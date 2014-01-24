@@ -19,4 +19,10 @@ class SetGetNodeJslintPathTest extends BaseTest {
         $this->assertEquals($path, $configuration->setNodeJslintPath($path)->getNodeJslintPath());        
     }
     
+    
+    public function testGetBeforeSetReturnsDefault() {
+        $configuration = new Configuration();
+        $this->assertEquals(Configuration::DEFAULT_NODE_JSLINT_PATH, $configuration->getNodeJslintPath()); 
+    }    
+    
 }

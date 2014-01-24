@@ -2,12 +2,15 @@
 namespace webignition\NodeJslint\Wrapper\Configuration;
 
 use webignition\NodeJslint\Wrapper\Configuration\Flag\JsLint as JsLintFlag;
+use webignition\NodeJslint\Wrapper\Configuration\Flag\NodeJsLint as NodeJsLintFlag;
 use webignition\NodeJslint\Wrapper\Configuration\Option\JsLint as JsLintOption;
 
 /**
  * 
  */
 class Configuration {    
+  
+    const FILE_URL_PREFIX = 'file:';
     
     const DEFAULT_NODE_PATH = '/usr/bin/node';
     const DEFAULT_NODE_JSLINT_PATH = '/usr/share/node-jslint/node_modules/jslint/bin/jslint.js';
@@ -189,5 +192,110 @@ class Configuration {
     public function hasUrlToLint() {
         return !is_null($this->urlToLint);
     }
+    
+    
+    /**
+     * 
+     * @return boolean[]
+     */
+    public function getFlags() {
+        return $this->flags;
+    }
+    
+    
+    /**
+     * 
+     * @return array
+     */
+    public function getOptions() {
+        return $this->options;
+    }
+    
+    
+    public function getExecutableCommand() {
+        if (!$this->hasUrlToLint()) {
+            throw new \UnexpectedValueException('URL to lint not present; set this first with ->setUrlToLint()', 1);
+        }
+        
+        $commandParts = array(
+            $this->getNodePath(),
+            $this->getNodeJslintPath(),
+            $this->getExecutableCommandFlagsString(),
+            $this->getExecutableCommandOptionsString(),
+            $this->getExecutableCommandPathToLint(),
+            '2>&1'
+        );
+        
+        return str_replace('  ', ' ', implode(' ', $commandParts));
+    }
+    
+    
+    private function getExecutableCommandPathToLint() {
+        if ($this->hasFileUrlToLint()) {
+            return substr($this->getUrlToLint(), strlen(self::FILE_URL_PREFIX));
+        }
+        
+        return $this->getUrlToLint();
+    }
+    
+    
+    /**
+     * 
+     * @return boolean
+     */
+    private function hasFileUrlToLint() {
+        if (!$this->hasUrlToLint()) {
+            return false;
+        }
+        
+        return substr($this->getUrlToLint(), 0, strlen(self::FILE_URL_PREFIX)) == self::FILE_URL_PREFIX;
+    }
+    
+    
+    
+    /**
+     * 
+     * @return string
+     */
+    private function getExecutableCommandFlagsString() {
+        $flagNames = array_keys($this->getExecutableCommandFlags());
+        foreach ($flagNames as $index => $name) {
+            $flagNames[$index] = '--' . $name;
+        }
+
+        return implode(' ', $flagNames);
+    }
+    
+    
+    private function getExecutableCommandOptionsString() {
+        $optionStrings = array();       
+     
+        foreach ($this->getOptions() as $name => $value) {
+            if ($name === JsLintOption::PREDEF && is_array($value)) {
+                foreach ($value as $prefValue) {
+                    $optionStrings[] = '--' . $name . '=' . $prefValue;
+                }
+            } else {
+                $optionStrings[] = '--' . $name . '=' . $value;
+            }                                          
+        }
+        
+        return implode(' ', $optionStrings);        
+    }
+    
+    
+    
+    /**
+     * 
+     * @return boolean[]
+     */
+    private function getExecutableCommandFlags() {
+        $flags = $this->getFlags();
+        $flags[NodeJsLintFlag::JSON] = true;
+        
+        return $flags;
+    }
+    
+    
     
 }

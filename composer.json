@@ -22,7 +22,8 @@
     },
     "require-dev": {
         "symfony/class-loader": "*",
-        "phpunit/phpunit": "3.7.*"
+        "phpunit/phpunit": "3.7.*",
+        "icanboogie/inflector":"1.0"
     },            
     "minimum-stability":"stable"
 }

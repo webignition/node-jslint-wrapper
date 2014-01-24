@@ -19,4 +19,10 @@ class SetGetNodePathTest extends BaseTest {
         $this->assertEquals($path, $configuration->setNodePath($path)->getNodePath());        
     }
     
+    
+    public function testGetBeforeSetReturnsDefault() {
+        $configuration = new Configuration();
+        $this->assertEquals(Configuration::DEFAULT_NODE_PATH, $configuration->getNodePath()); 
+    }
+    
 }
