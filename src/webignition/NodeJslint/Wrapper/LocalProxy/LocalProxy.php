@@ -1,6 +1,8 @@
 <?php
 namespace webignition\NodeJslint\Wrapper\LocalProxy;
 
+use webignition\NodeJslint\Wrapper\LocalProxy\Configuration;
+
 /**
  * node-jslint can only be run against local files (such as /home/example/script.js)
  * This LocalProxy handles the retrieval and local-storage of remote resources
@@ -9,7 +11,6 @@ namespace webignition\NodeJslint\Wrapper\LocalProxy;
 class LocalProxy { 
     
     const MAX_REMOTE_RESOURCE_AGE = 60;
-    
     
     
     /**
@@ -24,6 +25,13 @@ class LocalProxy {
      * @var string
      */
     private $localRemoteResourcePath = null;
+    
+    
+    /**
+     *
+     * @var \webignition\NodeJslint\Wrapper\LocalProxy\Configuration
+     */
+    private $configuration = null;
     
     
     /**
@@ -43,31 +51,20 @@ class LocalProxy {
         
         return $this->webResourceService;
     }
+
     
     
-//    /**
-//     * 
-//     * @return string
-//     */
-//    private function getExecutableCommandPathToLint() {
-//        if ($this->hasFileUrlToLint()) {
-//            return substr($this->getUrlToLint(), strlen(self::FILE_URL_PREFIX));
-//        }
-//        
-//        return $this->getUrlToLint();
-//        
-//        if ($this->isLocalRemoteResourceStale()) {
-//            $webResource = $this->retrieveRemoteResource();
-//            file_put_contents($this->getLocalRemoteResourcePath(), $webResource->getContent());        
-//        }
-//
-//        
-//        return $this->getLocalRemoteResourcePath();
-//        
-//        // $cssValidatorWrapper->getConfiguration()->getWebResourceService()->getConfiguration()->enableRetryWithUrlEncodingDisabled();
-//        
-//        //return $this->getUrlToLint();
-//    }    
+    /**
+     * 
+     * @return \webignition\NodeJslint\Wrapper\LocalProxy\Configuration
+     */
+    public function getConfiguration() {
+        if (is_null($this->configuration)) {
+            $this->configuration = new Configuration();
+        }
+        
+        return $this->configuration;
+    }  
     
     
     /**
@@ -76,8 +73,8 @@ class LocalProxy {
      * @throws \webignition\WebResource\Exception\InvalidContentTypeException
      */
     private function retrieveRemoteResource() {
-        $request = clone $this->getBaseRequest();            
-        $request->setUrl($this->getUrlToLint());
+        $request = clone $this->getConfiguration()->getBaseRequest();            
+        $request->setUrl($this->getConfiguration()->getUrlToLint());
 
         return $this->getWebResourceService()->get($request);        
     }
@@ -87,12 +84,26 @@ class LocalProxy {
      * 
      * @return string
      */
-    private function getLocalRemoteResourcePath() {
+    public function getLocalRemoteResourcePath() {
         if (is_null($this->localRemoteResourcePath)) {
-            $this->localRemoteResourcePath = sys_get_temp_dir() . '/' . $this->getUrlToLintHash() . '.' . microtime(true) . '.js';
+            $this->localRemoteResourcePath = sys_get_temp_dir() . '/' . $this->getUrlToLintHash() . '.' . $this->getLocalRemoteResourcePathTimestamp() . '.js';
+            
+            if ($this->isLocalRemoteResourceStale()) {
+                $resource = $this->retrieveRemoteResource();
+                @file_put_contents($this->localRemoteResourcePath, $resource->getContent());
+            }
         }
         
         return $this->localRemoteResourcePath;
+    }
+    
+    
+    /**
+     * 
+     * @return string
+     */
+    protected function getLocalRemoteResourcePathTimestamp() {
+        return (string)microtime(true);
     }
     
     
@@ -105,13 +116,18 @@ class LocalProxy {
     }
     
     
+    /**
+     * 
+     * @return boolean
+     */
     private function isLocalRemoteResourceStale() {
+        return true;
+        
         if (!$this->hasLocalRemoteResource()) {
             return true;
         }
         
-        var_dump("cp01");
-        exit();
+        return time() - filemtime($this->localRemoteResourcePath) > self::MAX_REMOTE_RESOURCE_AGE;
     }
     
     
@@ -120,8 +136,18 @@ class LocalProxy {
      * @return string
      */
     private function getUrlToLintHash() {
-        return md5($this->getUrlToLint());
-    }    
+        if (!$this->getConfiguration()->hasUrlToLint()) {
+            throw new \RuntimeException('Url to lint has not been set', 1);
+        }
+        
+        return md5($this->getConfiguration()->getUrlToLint());
+    } 
+    
+    
+    public function clearLocalRemoteResource() {
+        @unlink($this->localRemoteResourcePath);
+        $this->localRemoteResourcePath = null;
+    }
     
     
 }

@@ -2,6 +2,7 @@
 namespace webignition\NodeJslint\Wrapper\Mock;
 
 use webignition\NodeJslint\Wrapper\Wrapper as BaseWrapper;
+use webignition\NodeJslint\Wrapper\Mock\LocalProxy\LocalProxy;
 
 /**
  * Mock wrapper that overrides the main wrapper and allows for mock responses
@@ -67,6 +68,15 @@ class Wrapper extends BaseWrapper {
     public function disableDeferToParentIfNoRawOutput() {
         $this->deferToParentIfNoRawOutput = false;
         return $this;
-    }   
+    }
+    
+    
+    /**
+     * 
+     * @return \webignition\NodeJslint\Wrapper\LocalProxy\LocalProxy
+     */
+    protected function createLocalProxy() {
+        return new LocalProxy();
+    }
     
 }

@@ -1,9 +1,9 @@
 <?php
 
-namespace webignition\Tests\NodeJslint\Wrapper\Configuration;
+namespace webignition\Tests\NodeJslint\Wrapper\LocalProxy\Configuration;
 
 use webignition\Tests\NodeJslint\Wrapper\BaseTest;
-use webignition\NodeJslint\Wrapper\Configuration\Configuration;
+use webignition\NodeJslint\Wrapper\LocalProxy\Configuration;
 
 class SetGetBaseRequestTest extends BaseTest {
     
