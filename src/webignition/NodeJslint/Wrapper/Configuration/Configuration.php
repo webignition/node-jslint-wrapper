@@ -13,7 +13,7 @@ class Configuration {
     const FILE_URL_PREFIX = 'file:';
     
     const DEFAULT_NODE_PATH = '/usr/bin/node';
-    const DEFAULT_NODE_JSLINT_PATH = '/usr/share/node-jslint/node_modules/jslint/bin/jslint.js';
+    const DEFAULT_NODE_JSLINT_PATH = '/usr/share/node-jslint/node_modules/jslint/bin/jslint.js';    
     
     
     /**
@@ -48,7 +48,16 @@ class Configuration {
      *
      * @var string
      */
-    private $urlToLint = null;    
+    private $urlToLint = null;
+    
+    
+    /**
+     *
+     * @var \Guzzle\Http\Message\Request
+     */
+    private $baseRequest = null;
+
+    
     
     /**
      * 
@@ -212,6 +221,11 @@ class Configuration {
     }
     
     
+    /**
+     * 
+     * @return string
+     * @throws \UnexpectedValueException
+     */
     public function getExecutableCommand() {
         if (!$this->hasUrlToLint()) {
             throw new \UnexpectedValueException('URL to lint not present; set this first with ->setUrlToLint()', 1);
@@ -230,6 +244,10 @@ class Configuration {
     }
     
     
+    /**
+     * 
+     * @return string
+     */
     private function getExecutableCommandPathToLint() {
         if ($this->hasFileUrlToLint()) {
             return substr($this->getUrlToLint(), strlen(self::FILE_URL_PREFIX));
@@ -267,6 +285,10 @@ class Configuration {
     }
     
     
+    /**
+     * 
+     * @return string
+     */
     private function getExecutableCommandOptionsString() {
         $optionStrings = array();       
      
@@ -294,7 +316,35 @@ class Configuration {
         $flags[NodeJsLintFlag::JSON] = true;
         
         return $flags;
+    }  
+    
+    
+    /**
+     * 
+     * @param \Guzzle\Http\Message\Request $request
+     * @return \webignition\CssValidatorWrapper\Configuration
+     */
+    public function setBaseRequest(\Guzzle\Http\Message\Request $request) {
+        $this->baseRequest = $request;
+        return $this;
     }
+    
+    
+    
+    /**
+     * 
+     * @return \Guzzle\Http\Message\Request $request
+     */
+    public function getBaseRequest() {
+        if (is_null($this->baseRequest)) {
+            $client = new \Guzzle\Http\Client;            
+            $this->baseRequest = $client->get();
+        }
+        
+        return $this->baseRequest;
+    }  
+    
+    
     
     
     

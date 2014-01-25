@@ -3,6 +3,7 @@
 namespace webignition\Tests\NodeJslint\Wrapper;
 
 use webignition\NodeJslint\Wrapper\Configuration\Flag\JsLint as JsLintFlag;
+use Guzzle\Http\Client as HttpClient;
 
 abstract class BaseTest extends \PHPUnit_Framework_TestCase {  
     
@@ -13,6 +14,26 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase {
      * @var string
      */
     private $fixturePath = null;
+    
+
+    /**
+     *
+     * @var \Guzzle\Http\Client 
+     */
+    private $httpClient = null; 
+    
+    
+    /**
+     * 
+     * @return \Guzzle\Http\Client
+     */
+    protected function getHttpClient() {
+        if (is_null($this->httpClient)) {
+            $this->httpClient = new HttpClient();
+        }
+        
+        return $this->httpClient;
+    }    
     
 
     /**

@@ -34,7 +34,16 @@ abstract class GetExecutableCommandBaseTest extends BaseTest {
      * @return string
      */
     protected function getExpectedExecutableCommandSuffix() {
-        return self::EXPECTED_PATH_TO_LINT . ' 2>&1';
+        return $this->getExpectedPathToLint() . ' 2>&1';
+    }
+    
+    
+    /**
+     * 
+     * @return string
+     */
+    protected function getExpectedPathToLint() {
+        return self::EXPECTED_PATH_TO_LINT;
     }
     
 }

@@ -4,9 +4,12 @@ namespace webignition\Tests\NodeJslint\Wrapper\Configuration\GetExecutableComman
 
 use webignition\NodeJslint\Wrapper\Configuration\Configuration;
 
-class FileUrlTest extends GetExecutableCommandBaseTest { 
+class HttpUrlTest extends GetExecutableCommandBaseTest { 
     
-    public function testDefaultExecutableCommand() {
+    const URL_TO_LINT = 'http://example.com/script.js';
+    const EXPECTED_PATH_TO_LINT = 'http://example.com/script.js'; 
+    
+    public function testDefaultExecutableCommandContainsRemoteUrl() {
         $configuration = new Configuration();
         $configuration->setUrlToLint(self::URL_TO_LINT);
         
@@ -14,5 +17,14 @@ class FileUrlTest extends GetExecutableCommandBaseTest {
             $this->getExpectedFlaglessExecutableCommandPrefix() . ' ' . $this->getExpectedExecutableCommandSuffix(),
             $configuration->getExecutableCommand()    
         );
+    } 
+    
+    
+    /**
+     * 
+     * @return string
+     */
+    protected function getExpectedPathToLint() {
+        return self::EXPECTED_PATH_TO_LINT;
     }    
 }

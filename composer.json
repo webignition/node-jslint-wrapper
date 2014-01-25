@@ -19,7 +19,8 @@
     },   
     "require": {
         "php": ">=5.3.0",
-        "webignition/web-resource-service":">=0.3,<1"
+        "webignition/web-resource-service":">=0.3,<1",
+        "guzzle/guzzle":">=3.8.0,<4"
     },
     "require-dev": {
         "symfony/class-loader": "*",

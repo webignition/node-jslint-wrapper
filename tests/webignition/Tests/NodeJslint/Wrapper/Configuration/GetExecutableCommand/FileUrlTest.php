@@ -6,7 +6,7 @@ use webignition\NodeJslint\Wrapper\Configuration\Configuration;
 
 class FileUrlTest extends GetExecutableCommandBaseTest { 
     
-    public function testDefaultExecutableCommand() {
+    public function testDefaultExecutableCommandContainsSchemelessLocalPath() {
         $configuration = new Configuration();
         $configuration->setUrlToLint(self::URL_TO_LINT);
         
