@@ -3,29 +3,8 @@
 namespace webignition\Tests\NodeJslint\Wrapper\Validate\RemoteFile;
 
 use webignition\Tests\NodeJslint\Wrapper\BaseTest;
-use Guzzle\Http\Client as HttpClient;
 
 abstract class BaseRemoteFileTest extends BaseTest {   
-    
-    /**
-     *
-     * @var \Guzzle\Http\Client 
-     */
-    private $httpClient = null; 
-    
-    
-    /**
-     * 
-     * @return \Guzzle\Http\Client
-     */
-    protected function getHttpClient() {
-        if (is_null($this->httpClient)) {
-            $this->httpClient = new HttpClient();
-        }
-        
-        return $this->httpClient;
-    }        
-    
     
     protected function setHttpFixtures($fixtures) {
         $plugin = new \Guzzle\Plugin\Mock\MockPlugin();
