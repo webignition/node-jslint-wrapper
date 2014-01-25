@@ -3,6 +3,7 @@
 namespace webignition\Tests\NodeJslint\Wrapper;
 
 use webignition\NodeJslint\Wrapper\Configuration\Flag\JsLint as JsLintFlag;
+use webignition\NodeJslint\Wrapper\Mock\Wrapper as MockWrapper;
 use Guzzle\Http\Client as HttpClient;
 
 abstract class BaseTest extends \PHPUnit_Framework_TestCase {  
@@ -110,6 +111,13 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase {
     }
     
     
+    /**
+     * 
+     * @return \webignition\NodeJslint\Wrapper\Mock\Wrapper
+     */
+    public function getNewWrapper() {
+        return new MockWrapper();
+    }
         
     
 }

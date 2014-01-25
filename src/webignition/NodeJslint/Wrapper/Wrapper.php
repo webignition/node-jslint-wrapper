@@ -9,6 +9,7 @@ use webignition\NodeJslint\Wrapper\Configuration\Configuration;
  */
 class Wrapper {
     
+    const INVALID_ARGUMENT_EXCEPTION_CONFIGURATION_NOT_SET = 1;  
     
     /**
      *
@@ -45,7 +46,14 @@ class Wrapper {
      */
     public function hasConfiguration() {
         return !is_null($this->getConfiguration());
-    }    
+    }
+    
+    
+    public function validate() {
+        if (!$this->hasConfiguration()) {
+            throw new \InvalidArgumentException('Unable to validate; configuration not set', self::INVALID_ARGUMENT_EXCEPTION_CONFIGURATION_NOT_SET);
+        }           
+    }
     
     
 }
