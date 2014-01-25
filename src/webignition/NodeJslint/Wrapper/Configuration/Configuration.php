@@ -180,8 +180,34 @@ class Configuration {
      * @param string $url
      */
     public function setUrlToLint($url) {
+        if (!$this->urlHasExpectedScheme($url) && $url[0] == '/') {
+            $url = 'file:' . $url;
+        }
+        
         $this->urlToLint = $url;
         return $this;
+    }
+    
+    
+    /**
+     * 
+     * @param string $url
+     * @return boolean
+     */
+    private function urlHasExpectedScheme($url) {
+        $expectedSchemes = array(
+            'http:',
+            'https:',
+            'file:'
+        ); 
+        
+        foreach ($expectedSchemes as $scheme) {
+            if (substr($url, 0, strlen($scheme)) == $scheme) {
+                return true;
+            }
+        }
+        
+        return false;
     }
     
     
@@ -261,7 +287,7 @@ class Configuration {
      * 
      * @return boolean
      */
-    private function hasFileUrlToLint() {
+    public function hasFileUrlToLint() {
         if (!$this->hasUrlToLint()) {
             return false;
         }

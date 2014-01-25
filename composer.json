@@ -21,7 +21,7 @@
         "php": ">=5.3.0",
         "webignition/web-resource-service":">=0.3,<1",
         "guzzle/guzzle":">=3.8.0,<4",
-        "webignition/node-jslint-output-parser":">=1.0.5,<2.0"
+        "webignition/node-jslint-output-parser":">=1.0.5.3,<2.0"
     },
     "require-dev": {
         "symfony/class-loader": "*",

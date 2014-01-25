@@ -19,4 +19,12 @@ class SetGetUrlToLintTest extends BaseTest {
         $this->assertEquals($path, $configuration->setUrlToLint($path)->getUrlToLint());        
     }
     
+    
+    public function testLocalPathIsTranslatedToFileUrl() {        
+        $path = '/home/example/foo/.js';
+        $expectedPath = 'file:' . $path;
+        $configuration = new Configuration();
+        
+        $this->assertEquals($expectedPath, $configuration->setUrlToLint($path)->getUrlToLint());                
+    }    
 }

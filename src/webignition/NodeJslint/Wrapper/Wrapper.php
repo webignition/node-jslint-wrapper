@@ -2,6 +2,7 @@
 namespace webignition\NodeJslint\Wrapper;
 
 use webignition\NodeJslint\Wrapper\Configuration\Configuration;
+use webignition\NodeJslintOutput\Parser as OutputParser;
 
 
 /**
@@ -49,10 +50,38 @@ class Wrapper {
     }
     
     
+    /**
+     * 
+     * @throws \InvalidArgumentException
+     * @throws \webignition\NodeJslintOutput\Exception
+     */
     public function validate() {
         if (!$this->hasConfiguration()) {
             throw new \InvalidArgumentException('Unable to validate; configuration not set', self::INVALID_ARGUMENT_EXCEPTION_CONFIGURATION_NOT_SET);
-        }           
+        }
+        
+        $validatorOutput = $this->getRawValidatorOutputLines();
+        
+        $outputParser = new OutputParser();
+        return $outputParser->parse(implode("\n", $validatorOutput));
+    }
+    
+    
+    /**
+     * 
+     * @return string[]
+     */
+    protected function getRawValidatorOutputLines() {        
+        $validatorOutputLines = array();  
+        
+        if ($this->getConfiguration()->hasFileUrlToLint()) {
+            exec($this->getConfiguration()->getExecutableCommand(), $validatorOutputLines);
+        } else {
+            var_dump("cp01");
+            exit();
+        }        
+
+        return $validatorOutputLines;        
     }
     
     
