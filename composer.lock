@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "e359a691578c42a627a862949213918d",
+    "hash": "e3e15ad246acadc71bb6d69a5a19485f",
     "packages": [
         {
             "name": "guzzle/guzzle",
@@ -237,6 +237,51 @@
                 "media-type"
             ],
             "time": "2013-09-05 16:34:19"
+        },
+        {
+            "name": "webignition/node-jslint-output-parser",
+            "version": "1.0.5.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/webignition/node-jslint-output-parser.git",
+                "reference": "9ddde54948700c64cd9c12848b58ffb982543cea"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/webignition/node-jslint-output-parser/zipball/9ddde54948700c64cd9c12848b58ffb982543cea",
+                "reference": "9ddde54948700c64cd9c12848b58ffb982543cea",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "3.7.*",
+                "symfony/class-loader": "*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "webignition\\Tests": "tests/",
+                    "": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jon Cram",
+                    "email": "jon@webignition.net"
+                }
+            ],
+            "description": "Parser for the output of reid / node-jslint, get lovely things such as a list of errors, error counts, % of content scanned, bunnies",
+            "homepage": "https://github.com/webignition/node-jslint-output-parser",
+            "keywords": [
+                "rss"
+            ],
+            "time": "2014-01-24 08:53:18"
         },
         {
             "name": "webignition/quoted-string",
