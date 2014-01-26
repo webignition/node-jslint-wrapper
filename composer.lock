@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "d548c063916f6d8e20bacb22b8262c17",
+    "hash": "9f784b5800bd1b3a4d63ec5e5369edf9",
     "packages": [
         {
             "name": "guzzle/guzzle",
@@ -240,16 +240,16 @@
         },
         {
             "name": "webignition/node-jslint-output-parser",
-            "version": "1.0.5.3",
+            "version": "1.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/webignition/node-jslint-output-parser.git",
-                "reference": "b4e91919e2d479488aad055a7f6c0870d00c84a6"
+                "reference": "84ddd7286f7bae6aac29071d051abcde5fcd2d0e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webignition/node-jslint-output-parser/zipball/b4e91919e2d479488aad055a7f6c0870d00c84a6",
-                "reference": "b4e91919e2d479488aad055a7f6c0870d00c84a6",
+                "url": "https://api.github.com/repos/webignition/node-jslint-output-parser/zipball/84ddd7286f7bae6aac29071d051abcde5fcd2d0e",
+                "reference": "84ddd7286f7bae6aac29071d051abcde5fcd2d0e",
                 "shasum": ""
             },
             "require": {
@@ -283,7 +283,7 @@
                 "output",
                 "parser"
             ],
-            "time": "2014-01-25 14:54:18"
+            "time": "2014-01-26 17:23:17"
         },
         {
             "name": "webignition/quoted-string",
