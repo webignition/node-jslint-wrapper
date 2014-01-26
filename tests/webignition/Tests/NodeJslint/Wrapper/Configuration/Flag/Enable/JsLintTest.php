@@ -1,6 +1,6 @@
 <?php
 
-namespace webignition\Tests\NodeJslint\Wrapper\Configuration\Flag\Set;
+namespace webignition\Tests\NodeJslint\Wrapper\Configuration\Flag\Enable;
 
 use webignition\Tests\NodeJslint\Wrapper\BaseTest;
 use webignition\NodeJslint\Wrapper\Configuration\Configuration;
@@ -14,7 +14,7 @@ class JsLintTest extends BaseTest {
         $flagName = $flagNames[$key];
         
         $configuration = new Configuration();
-        $configuration->setFlag($flagName);
+        $configuration->enableFlag($flagName);       
     }
 
     public function testAnon() {}

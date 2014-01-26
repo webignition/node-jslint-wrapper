@@ -19,7 +19,7 @@ class OptionTest extends GetExecutableCommandBaseTest {
         $this->assertEquals(
             $this->getExpectedFlaglessExecutableCommandPrefix() . ' ' . $this->getExpectedOptionsString() . ' ' . $this->getExpectedExecutableCommandSuffix(),
             $configuration->getExecutableCommand()
-        );        
+        );
     }
     
     public function testIndent_1() {}

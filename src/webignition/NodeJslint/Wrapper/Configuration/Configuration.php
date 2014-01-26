@@ -90,21 +90,36 @@ class Configuration {
     public function getNodeJslintPath() {
         return (is_null($this->nodeJsLintPath)) ? self::DEFAULT_NODE_JSLINT_PATH : $this->nodeJsLintPath;
     }
+
+
+    /**
+     * 
+     * @param string $name
+     * @return \webignition\NodeJslint\Wrapper\Configuration\Configuration
+     */    
+    public function enableFlag($name) {
+        if (!$this->isValidFlag($name)) {
+            throw new \InvalidArgumentException('Flag "'.$name.'" is not valid', 1);
+        }
+        
+        $this->flags[$name] = true;          
+        return $this;        
+    }
     
     
     /**
      * 
      * @param string $name
      * @return \webignition\NodeJslint\Wrapper\Configuration\Configuration
-     */
-    public function setFlag($name) {
+     */    
+    public function disableFlag($name) {
         if (!$this->isValidFlag($name)) {
             throw new \InvalidArgumentException('Flag "'.$name.'" is not valid', 1);
         }
         
-        $this->flags[$name] = true;          
-        return $this;
-    }
+        $this->flags[$name] = false;          
+        return $this;        
+    }    
     
     
     /**
@@ -295,12 +310,13 @@ class Configuration {
      * @return string
      */
     private function getExecutableCommandFlagsString() {
-        $flagNames = array_keys($this->getExecutableCommandFlags());
-        foreach ($flagNames as $index => $name) {
-            $flagNames[$index] = '--' . $name;
+        $flagStrings = array();
+        
+        foreach ($this->getExecutableCommandFlags() as $name => $value) {
+            $flagStrings[] = '--' . $name . '=' . (($value) ?  'true' : 'false');
         }
 
-        return implode(' ', $flagNames);
+        return implode(' ', $flagStrings);
     }
     
     

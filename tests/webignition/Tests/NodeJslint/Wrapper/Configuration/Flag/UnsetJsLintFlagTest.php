@@ -49,7 +49,7 @@ class JsLintFlagTest extends BaseTest {
         
         $configuration = new Configuration();
         
-        $configuration->setFlag($flagName);
+        $configuration->enableFlag($flagName);
         $configuration->unsetFlag($flagName);              
         $this->assertFalse($configuration->hasFlag($flagName));        
     }

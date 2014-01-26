@@ -25,7 +25,7 @@ abstract class GetExecutableCommandBaseTest extends BaseTest {
      * @return string
      */
     protected function getExpectedFlaglessExecutableCommandPrefix() {
-        return $this->getExpectedExecutableCommandPrefix() . ' --json';
+        return $this->getExpectedExecutableCommandPrefix() . ' --json=true';
     }
     
     
