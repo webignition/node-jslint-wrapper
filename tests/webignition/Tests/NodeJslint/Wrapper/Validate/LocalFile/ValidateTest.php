@@ -21,6 +21,11 @@ class ValidateTest extends BaseTest {
         $this->wrapper->validate();
     }
     
+    public function testIncorrectNodeJsPath() {
+        $this->setExpectedException('webignition\NodeJslintOutput\Exception', 'node-jslint not found at "/home/example/node_modules/jslint/bin/jslint.js"', 3);
+        $this->wrapper->validate();        
+    }
+    
     
     public function testErrorFree() {
         $this->wrapper->validate();
