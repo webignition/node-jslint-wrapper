@@ -25,6 +25,13 @@ class Wrapper extends BaseWrapper {
     
     
     /**
+     *
+     * @var boolean
+     */
+    private $clearRawOutputWhenUsed = false;
+    
+    
+    /**
      * 
      * @param string $rawOutput
      * @return \webignition\NodeJslint\Wrapper\Mock\Wrapper
@@ -46,9 +53,15 @@ class Wrapper extends BaseWrapper {
             } 
             
             return null;
-        }      
+        }
         
-        return explode("\n", $this->validatorRawOutput);
+        $output = explode("\n", $this->validatorRawOutput);
+        
+        if ($this->clearRawOutputWhenUsed) {
+            $this->validatorRawOutput = null;
+        }
+        
+        return $output;
     }  
     
     /**
@@ -69,6 +82,25 @@ class Wrapper extends BaseWrapper {
         $this->deferToParentIfNoRawOutput = false;
         return $this;
     }
+    
+    
+    /**
+     * 
+     * @return \webignition\NodeJslint\Wrapper\Mock\Wrapper
+     */
+    public function enableClearRawOutputWhenUsed() {
+        $this->clearRawOutputWhenUsed = true;
+        return $this;
+    }  
+    
+    /**
+     * 
+     * @return \webignition\NodeJslint\Wrapper\Mock\Wrapper
+     */
+    public function disableClearRawOutputWhenUsed() {
+        $this->clearRawOutputWhenUsed = false;
+        return $this;
+    }      
     
     
     /**
