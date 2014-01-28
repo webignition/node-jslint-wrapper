@@ -59,7 +59,7 @@ class Wrapper {
             throw new \InvalidArgumentException('Unable to validate; configuration not set', self::INVALID_ARGUMENT_EXCEPTION_CONFIGURATION_NOT_SET);
         }
         
-        $validatorOutput = $this->getRawValidatorOutputLines();
+        $validatorOutput = $this->getRawValidatorOutputLines($this->getExecutableCommand());
         if (!$this->getConfiguration()->hasFileUrlToLint()) {            
             $this->getLocalProxy()->clearLocalRemoteResource();
         }
@@ -85,18 +85,25 @@ class Wrapper {
      * 
      * @return string[]
      */
-    protected function getRawValidatorOutputLines() {        
-        $validatorOutputLines = array();
-        
-        if ($this->getConfiguration()->hasFileUrlToLint()) {
-            $executableCommand = $this->getConfiguration()->getExecutableCommand();
-        } else {
-            $this->getLocalProxy()->getConfiguration()->setUrlToLint($this->getConfiguration()->getUrlToLint());
-            $executableCommand = $this->getExecutableCommandForRemoteResource();
-        }        
+    protected function getRawValidatorOutputLines($executableCommand) {        
+        $validatorOutputLines = array();       
         
         exec($executableCommand, $validatorOutputLines);
         return $validatorOutputLines;        
+    }
+    
+    
+    /**
+     * 
+     * @return string
+     */
+    private function getExecutableCommand() {
+        if ($this->getConfiguration()->hasFileUrlToLint()) {
+            return $this->getConfiguration()->getExecutableCommand();
+        }
+
+        $this->getLocalProxy()->getConfiguration()->setUrlToLint($this->getConfiguration()->getUrlToLint());
+        return $this->getExecutableCommandForRemoteResource();    
     }
     
     

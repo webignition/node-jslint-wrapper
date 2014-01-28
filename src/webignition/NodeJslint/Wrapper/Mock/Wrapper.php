@@ -46,10 +46,10 @@ class Wrapper extends BaseWrapper {
      * 
      * @return array
      */
-    protected function getRawValidatorOutputLines() {        
+    protected function getRawValidatorOutputLines($executableCommand) {        
         if (is_null($this->validatorRawOutput)) {
             if ($this->deferToParentIfNoRawOutput) {
-                return parent::getRawValidatorOutputLines();
+                return parent::getRawValidatorOutputLines($executableCommand);
             } 
             
             return null;
