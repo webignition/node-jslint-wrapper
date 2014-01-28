@@ -22,9 +22,9 @@ class LocalProxy {
     
     /**
      *
-     * @var string
+     * @var string[]
      */
-    private $localRemoteResourcePath = null;
+    private $localRemoteResourcePaths = array();
     
     
     /**
@@ -85,16 +85,16 @@ class LocalProxy {
      * @return string
      */
     public function getLocalRemoteResourcePath() {
-        if (is_null($this->localRemoteResourcePath)) {
-            $this->localRemoteResourcePath = sys_get_temp_dir() . '/' . $this->getUrlToLintHash() . '.' . $this->getLocalRemoteResourcePathTimestamp() . '.js';
+        if (!isset($this->localRemoteResourcePaths[$this->getUrlToLintHash()])) {
+            $this->localRemoteResourcePaths[$this->getUrlToLintHash()] = sys_get_temp_dir() . '/' . $this->getUrlToLintHash() . '.' . $this->getLocalRemoteResourcePathTimestamp() . '.js';
             
             if ($this->isLocalRemoteResourceStale()) {
                 $resource = $this->retrieveRemoteResource();
-                @file_put_contents($this->localRemoteResourcePath, $resource->getContent());
+                @file_put_contents($this->localRemoteResourcePaths[$this->getUrlToLintHash()], $resource->getContent());
             }
         }
         
-        return $this->localRemoteResourcePath;
+        return $this->localRemoteResourcePaths[$this->getUrlToLintHash()];
     }
     
     
