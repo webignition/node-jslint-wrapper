@@ -24,7 +24,6 @@
         "webignition/node-jslint-output-parser":">=1.0.6,<2.0"
     },
     "require-dev": {
-        "symfony/class-loader": "*",
         "phpunit/phpunit": "~4.0",
         "icanboogie/inflector":"1.0"
     },
