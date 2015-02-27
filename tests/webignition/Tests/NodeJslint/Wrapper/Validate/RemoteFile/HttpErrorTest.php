@@ -22,7 +22,7 @@ class HttpErrorTest extends BaseRemoteFileTest {
             'HTTP/1.0 ' . $this->getStatusCode()
         )));       
         
-        $this->wrapper->getLocalProxy()->getConfiguration()->setBaseRequest($this->getHttpClient()->get());        
+        $this->wrapper->getLocalProxy()->getConfiguration()->setHttpClient($this->getHttpClient());
         $this->wrapper->enableDeferToParentIfNoRawOutput();
         
         try {

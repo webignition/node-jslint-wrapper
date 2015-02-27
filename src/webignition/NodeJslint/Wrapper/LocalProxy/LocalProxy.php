@@ -1,7 +1,8 @@
 <?php
+
 namespace webignition\NodeJslint\Wrapper\LocalProxy;
 
-use webignition\NodeJslint\Wrapper\LocalProxy\Configuration;
+use webignition\WebResource\Service\Service as WebResourceService;
 
 /**
  * node-jslint can only be run against local files (such as /home/example/script.js)
@@ -13,7 +14,7 @@ class LocalProxy {
     
     /**
      *
-     * @var \webignition\WebResource\Service\Service
+     * @var WebResourceService
      */
     private $webResourceService;     
     
@@ -27,18 +28,18 @@ class LocalProxy {
     
     /**
      *
-     * @var \webignition\NodeJslint\Wrapper\LocalProxy\Configuration
+     * @var Configuration
      */
     private $configuration = null;
     
     
     /**
      * 
-     * @return \webignition\WebResource\Service\Service
+     * @return WebResourceService
      */
     public function getWebResourceService() {
         if (is_null($this->webResourceService)) {
-            $this->webResourceService = new \webignition\WebResource\Service\Service();
+            $this->webResourceService = new WebResourceService();
             $this->webResourceService->getConfiguration()->setContentTypeWebResourceMap(array(
                 'text/javascript' => 'webignition\WebResource\WebResource',
                 'application/javascript' => 'webignition\WebResource\WebResource',
@@ -54,7 +55,7 @@ class LocalProxy {
     
     /**
      * 
-     * @return \webignition\NodeJslint\Wrapper\LocalProxy\Configuration
+     * @return Configuration
      */
     public function getConfiguration() {
         if (is_null($this->configuration)) {
@@ -71,10 +72,10 @@ class LocalProxy {
      * @throws \webignition\WebResource\Exception\InvalidContentTypeException
      */
     private function retrieveRemoteResource() {
-        $request = clone $this->getConfiguration()->getBaseRequest();            
-        $request->setUrl($this->getConfiguration()->getUrlToLint());
-
-        return $this->getWebResourceService()->get($request);        
+        return $this->getWebResourceService()->get($this->getConfiguration()->getHttpClient()->createRequest(
+            'GET',
+            $this->getConfiguration()->getUrlToLint()
+        ));
     }
     
     
@@ -101,11 +102,11 @@ class LocalProxy {
     protected function getLocalRemoteResourcePathTimestamp() {
         return (string)microtime(true);
     }
-    
-    
+
+
     /**
-     * 
      * @return string
+     * @throws \RuntimeException
      */
     private function getUrlToLintHash() {
         if (!$this->getConfiguration()->hasUrlToLint()) {
@@ -117,8 +118,11 @@ class LocalProxy {
     
     
     public function clearLocalRemoteResource() {
-        @unlink($this->localRemoteResourcePath);
-        $this->localRemoteResourcePath = null;
+        foreach ($this->localRemoteResourcePaths as $localRemoteResourcePath) {
+            @unlink($localRemoteResourcePath);
+        }
+
+        $this->localRemoteResourcePaths = [];
     }
     
     

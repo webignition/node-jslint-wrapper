@@ -35,7 +35,7 @@ class ValidateTest extends BaseRemoteFileTest {
         $this->setTestFixturePath(__CLASS__, __FUNCTION__);        
         $this->setHttpFixtures($this->getHttpFixtures($this->getTestFixturePath() . '/HttpResponses'));
 
-        $this->wrapper->getLocalProxy()->getConfiguration()->setBaseRequest($this->getHttpClient()->get());        
+        $this->wrapper->getLocalProxy()->getConfiguration()->setHttpClient($this->getHttpClient());
         $output = $this->wrapper->validate();
         
         $this->assertEquals(self::URL_TO_LINT, $output->getStatusLine());

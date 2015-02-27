@@ -4,7 +4,12 @@ namespace webignition\Tests\NodeJslint\Wrapper;
 
 use webignition\NodeJslint\Wrapper\Configuration\Flag\JsLint as JsLintFlag;
 use webignition\NodeJslint\Wrapper\Mock\Wrapper as MockWrapper;
-use Guzzle\Http\Client as HttpClient;    
+use GuzzleHttp\Client as HttpClient;
+use GuzzleHttp\Subscriber\Mock as HttpMockSubscriber;
+use GuzzleHttp\Message\MessageFactory as HttpMessageFactory;
+use GuzzleHttp\Message\ResponseInterface as HttpResponse;
+use GuzzleHttp\Message\Request as HttpRequest;
+use GuzzleHttp\Exception\ConnectException;
 
 abstract class BaseTest extends \PHPUnit_Framework_TestCase {  
     
@@ -19,14 +24,14 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase {
     
     /**
      *
-     * @var \Guzzle\Http\Client 
+     * @var HttpClient
      */
     private $httpClient = null; 
     
     
     /**
      * 
-     * @return \Guzzle\Http\Client
+     * @return HttpClient
      */
     protected function getHttpClient() {
         if (is_null($this->httpClient)) {
@@ -125,17 +130,9 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase {
         
     
     protected function setHttpFixtures($fixtures) {
-        $plugin = new \Guzzle\Plugin\Mock\MockPlugin();
-        
-        foreach ($fixtures as $fixture) {
-            if ($fixture instanceof \Exception) {
-                $plugin->addException($fixture);
-            } else {
-                $plugin->addResponse($fixture);
-            }
-        }
-         
-        $this->getHttpClient()->addSubscriber($plugin);              
+        $this->getHttpClient()->getEmitter()->attach(
+            new HttpMockSubscriber($fixtures)
+        );
     }    
     
     
@@ -171,7 +168,7 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase {
         foreach ($items as $item) {
             switch ($this->getHttpFixtureItemType($item)) {
                 case 'httpMessage':
-                    $fixtures[] = \Guzzle\Http\Message\Response::fromMessage($item);
+                    $fixtures[] = $this->getHttpResponseFromMessage($item);
                     break;
                 
                 case 'curlException':
@@ -198,21 +195,31 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase {
         }
         
         return 'curlException';
-    }  
-    
-    
+    }
+
+
     /**
-     * 
+     *
      * @param string $curlMessage
-     * @return \Guzzle\Http\Exception\CurlException
+     * @return ConnectException
      */
     private function getCurlExceptionFromCurlMessage($curlMessage) {
         $curlMessageParts = explode(' ', $curlMessage, 2);
-        
-        $curlException = new \Guzzle\Http\Exception\CurlException();
-        $curlException->setError($curlMessageParts[1], (int)  str_replace('CURL/', '', $curlMessageParts[0]));
-        
-        return $curlException;
-    }    
+
+        return new ConnectException(
+            'cURL error ' . str_replace('CURL/', '', $curlMessageParts[0]) . ': ' . $curlMessageParts[1],
+            new HttpRequest('GET', 'http://example.com/')
+        );
+    }
+
+
+    /**
+     * @param $message
+     * @return HttpResponse
+     */
+    protected function getHttpResponseFromMessage($message) {
+        $factory = new HttpMessageFactory();
+        return $factory->fromMessage($message);
+    }
     
 }

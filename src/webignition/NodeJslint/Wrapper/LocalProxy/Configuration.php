@@ -1,6 +1,9 @@
 <?php
 namespace webignition\NodeJslint\Wrapper\LocalProxy;
 
+use GuzzleHttp\Client as HttpClient;
+use GuzzleHttp\Message\RequestInterface as HttpRequest;
+
 /**
  * 
  */
@@ -16,39 +19,38 @@ class Configuration {
     
     /**
      *
-     * @var \Guzzle\Http\Message\Request
+     * @var HttpClient
      */
-    private $baseRequest = null;
+    private $httpClient = null;
 
-    
+
     /**
-     * 
-     * @param \Guzzle\Http\Message\Request $request
-     * @return \webignition\CssValidatorWrapper\Configuration
+     * @param HttpClient $httpClient
+     * @return $this
      */
-    public function setBaseRequest(\Guzzle\Http\Message\Request $request) {
-        $this->baseRequest = $request;
+    public function setHttpClient(HttpClient $httpClient) {
+        $this->httpClient = $httpClient;
         return $this;
     }    
     
     
     /**
      * 
-     * @return \Guzzle\Http\Message\Request $request
+     * @return HttpClient
      */
-    public function getBaseRequest() {
-        if (is_null($this->baseRequest)) {
-            $client = new \Guzzle\Http\Client;            
-            $this->baseRequest = $client->get();
+    public function getHttpClient() {
+        if (is_null($this->httpClient)) {
+            $this->httpClient = new HttpClient;
         }
         
-        return $this->baseRequest;
+        return $this->httpClient;
     } 
     
-    
+
     /**
-     * 
-     * @param string $url
+     * @param $url
+     * @return $this
+     * @throws \InvalidArgumentException
      */
     public function setUrlToLint($url) {
         if (!$this->urlHasExpectedScheme($url)) {

@@ -14,7 +14,7 @@ class GetLocalRemoteResourcePathTest extends BaseTest {
         )));
         
         $localProxy = new LocalProxy();
-        $localProxy->getConfiguration()->setBaseRequest($this->getHttpClient()->get());        
+        $localProxy->getConfiguration()->setHttpClient($this->getHttpClient());
         $localProxy->getConfiguration()->setUrlToLint('http://example.com/one.js');
         
         $localPathOne = $localProxy->getLocalRemoteResourcePath();

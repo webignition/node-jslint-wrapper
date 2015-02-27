@@ -2,7 +2,7 @@
 
 namespace webignition\Tests\NodeJslint\Wrapper\Validate\RemoteFile;
 
-use webignition\Tests\NodeJslint\Wrapper\Validate\RemoteFile\BaseRemoteFileTest;
+use GuzzleHttp\Exception\ConnectException;
 
 class CurlErrorTest extends BaseRemoteFileTest {
     
@@ -22,14 +22,14 @@ class CurlErrorTest extends BaseRemoteFileTest {
             'CURL/' . $this->getStatusCode().' message'
         )));       
         
-        $this->wrapper->getLocalProxy()->getConfiguration()->setBaseRequest($this->getHttpClient()->get());        
+        $this->wrapper->getLocalProxy()->getConfiguration()->setHttpClient($this->getHttpClient());
         $this->wrapper->enableDeferToParentIfNoRawOutput();
         
         try {
             $this->wrapper->validate();
             $this->fail('CURL '.$this->getStatusCode().' exception not thrown');
-        } catch (\Guzzle\Http\Exception\CurlException $curlException) {            
-            $this->assertEquals($this->getStatusCode(), $curlException->getErrorNo());
+        } catch (ConnectException $connectException) {
+            $this->assertEquals('cURL error ' . $this->getStatusCode() . ': message', $connectException->getMessage());
         }         
 
     }
