@@ -11,62 +11,62 @@ use GuzzleHttp\Message\ResponseInterface as HttpResponse;
 use GuzzleHttp\Message\Request as HttpRequest;
 use GuzzleHttp\Exception\ConnectException;
 
-abstract class BaseTest extends \PHPUnit_Framework_TestCase {  
-    
-    const FIXTURES_BASE_PATH = '/../../../../fixtures';
-    
+abstract class BaseTest extends \PHPUnit_Framework_TestCase {
+
+    const FIXTURES_BASE_PATH = '/fixtures';
+
     /**
      *
      * @var string
      */
     private $fixturePath = null;
-    
-    
+
+
     /**
      *
      * @var HttpClient
      */
-    private $httpClient = null; 
-    
-    
+    private $httpClient = null;
+
+
     /**
-     * 
+     *
      * @return HttpClient
      */
     protected function getHttpClient() {
         if (is_null($this->httpClient)) {
             $this->httpClient = new HttpClient();
         }
-        
-        return $this->httpClient;
-    }      
 
-    
+        return $this->httpClient;
+    }
+
+
     /**
-     * 
+     *
      * @param string $testClass
      * @param string $testMethod
      */
     protected function setTestFixturePath($testClass, $testMethod = null) {
         $this->fixturePath = __DIR__ . self::FIXTURES_BASE_PATH . '/' . str_replace('\\', '/', $testClass);
-        
+
         if (is_string($testMethod)) {
             $this->fixturePath .=  '/' . $testMethod;
         }
-    }    
-    
-    
+    }
+
+
     /**
-     * 
+     *
      * @return string
      */
     protected function getTestFixturePath() {
-        return $this->fixturePath;     
+        return $this->fixturePath;
     }
-    
-    
+
+
     /**
-     * 
+     *
      * @param string $fixtureName
      * @return string
      */
@@ -74,13 +74,13 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase {
         if (file_exists($this->getTestFixturePath() . '/' . $fixtureName)) {
             return file_get_contents($this->getTestFixturePath() . '/' . $fixtureName);
         }
-        
-        return file_get_contents(__DIR__ . self::FIXTURES_BASE_PATH . '/Common/' . $fixtureName);        
+
+        return file_get_contents(__DIR__ . self::FIXTURES_BASE_PATH . '/Common/' . $fixtureName);
     }
-    
-    
+
+
     /**
-     * 
+     *
      * @return array
      */
     protected function getAllFlagNames() {
@@ -116,76 +116,76 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase {
             'white' => JsLintFlag::WHITE,
             'widget' => JsLintFlag::WIDGET,
             'windows' => JsLintFlag::WINDOWS
-        );        
+        );
     }
-    
-    
+
+
     /**
-     * 
+     *
      * @return \webignition\NodeJslint\Wrapper\Mock\Wrapper
      */
     public function getNewWrapper() {
         return new MockWrapper();
     }
-        
-    
+
+
     protected function setHttpFixtures($fixtures) {
         $this->getHttpClient()->getEmitter()->attach(
             new HttpMockSubscriber($fixtures)
         );
-    }    
-    
-    
+    }
+
+
     protected function getHttpFixtures($path, $filter = null) {
         $items = array();
 
         $fixturesDirectory = new \DirectoryIterator($path);
         $fixturePaths = array();
         foreach ($fixturesDirectory as $directoryItem) {
-            if ($directoryItem->isFile() && ((!is_array($filter)) || (is_array($filter) && in_array($directoryItem->getFilename(), $filter)))) {                
+            if ($directoryItem->isFile() && ((!is_array($filter)) || (is_array($filter) && in_array($directoryItem->getFilename(), $filter)))) {
                 $fixturePaths[] = $directoryItem->getPathname();
             }
         }
-        
-        sort($fixturePaths);        
-        
+
+        sort($fixturePaths);
+
         foreach ($fixturePaths as $fixturePath) {
             $items[] = file_get_contents($fixturePath);
         }
-        
+
         return $this->buildHttpFixtureSet($items);
     }
-    
-    
+
+
     /**
-     * 
+     *
      * @param array $items Collection of http messages and/or curl exceptions
      * @return array
      */
     protected function buildHttpFixtureSet($items) {
         $fixtures = array();
-        
+
         foreach ($items as $item) {
             switch ($this->getHttpFixtureItemType($item)) {
                 case 'httpMessage':
                     $fixtures[] = $this->getHttpResponseFromMessage($item);
                     break;
-                
+
                 case 'curlException':
-                    $fixtures[] = $this->getCurlExceptionFromCurlMessage($item);                    
+                    $fixtures[] = $this->getCurlExceptionFromCurlMessage($item);
                     break;
-                
+
                 default:
                     throw new \LogicException();
             }
         }
-        
+
         return $fixtures;
-    }    
-    
-    
+    }
+
+
     /**
-     * 
+     *
      * @param string $item
      * @return string
      */
@@ -193,7 +193,7 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase {
         if (substr($item, 0, strlen('HTTP')) == 'HTTP') {
             return 'httpMessage';
         }
-        
+
         return 'curlException';
     }
 
@@ -221,5 +221,5 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase {
         $factory = new HttpMessageFactory();
         return $factory->fromMessage($message);
     }
-    
+
 }
