@@ -2,14 +2,15 @@
 
 namespace webignition\Tests\NodeJslint\Wrapper;
 
+use phpmock\mockery\PHPMockery;
 use webignition\NodeJslint\Wrapper\Configuration\Flag\JsLint as JsLintFlag;
-use webignition\NodeJslint\Wrapper\Mock\Wrapper as MockWrapper;
 use GuzzleHttp\Client as HttpClient;
 use GuzzleHttp\Subscriber\Mock as HttpMockSubscriber;
 use GuzzleHttp\Message\MessageFactory as HttpMessageFactory;
 use GuzzleHttp\Message\ResponseInterface as HttpResponse;
 use GuzzleHttp\Message\Request as HttpRequest;
 use GuzzleHttp\Exception\ConnectException;
+use webignition\NodeJslint\Wrapper\Wrapper;
 
 abstract class BaseTest extends \PHPUnit_Framework_TestCase {
 
@@ -121,11 +122,10 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase {
 
 
     /**
-     *
-     * @return \webignition\NodeJslint\Wrapper\Mock\Wrapper
+     * @return Wrapper
      */
     public function getNewWrapper() {
-        return new MockWrapper();
+        return new Wrapper();
     }
 
 
@@ -220,6 +220,28 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase {
     protected function getHttpResponseFromMessage($message) {
         $factory = new HttpMessageFactory();
         return $factory->fromMessage($message);
+    }
+
+    /**
+     * @param string $rawOutput
+     */
+    protected function setValidatorRawOutput($rawOutput)
+    {
+        PHPMockery::mock(
+            'webignition\NodeJslint\Wrapper',
+            'shell_exec'
+        )->andReturn(
+            $rawOutput
+        );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function tearDown()
+    {
+        parent::tearDown();
+        \Mockery::close();
     }
 
 }

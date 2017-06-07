@@ -5,46 +5,45 @@ namespace webignition\Tests\NodeJslint\Wrapper\Validate\RemoteFile;
 use GuzzleHttp\Exception\ConnectException;
 
 class CurlErrorTest extends BaseRemoteFileTest {
-    
+
     const URL_TO_LINT = 'http://example.com/example.js';
-    
+
     /**
      *
-     * @var \webignition\NodeJslint\Wrapper\Mock\Wrapper
+     * @var \webignition\NodeJslint\Wrapper\Wrapper
      */
     private $wrapper;
-    
-    public function setUp() {        
+
+    public function setUp() {
         $this->wrapper = $this->getNewWrapper();
         $this->wrapper->getConfiguration()->setUrlToLint(self::URL_TO_LINT);
-        
+
         $this->setHttpFixtures($this->buildHttpFixtureSet(array(
             'CURL/' . $this->getStatusCode().' message'
-        )));       
-        
+        )));
+
         $this->wrapper->getLocalProxy()->getConfiguration()->setHttpClient($this->getHttpClient());
-        $this->wrapper->enableDeferToParentIfNoRawOutput();
-        
+
         try {
             $this->wrapper->validate();
             $this->fail('CURL '.$this->getStatusCode().' exception not thrown');
         } catch (ConnectException $connectException) {
             $this->assertEquals('cURL error ' . $this->getStatusCode() . ': message', $connectException->getMessage());
-        }         
+        }
 
     }
-    
+
     public function test6() {}
     public function test28() {}
-    
-    
+
+
     /**
-     * 
+     *
      * @return int
      */
     private function getStatusCode() {
         return (int)str_replace('test', '', $this->getName());
-    }    
-    
-    
+    }
+
+
 }
