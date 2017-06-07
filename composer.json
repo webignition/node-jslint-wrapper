@@ -22,7 +22,7 @@
         }
     },
     "scripts": {
-        "test": "./vendor/bin/phpunit -c phpunit.ci.xml --colors=always",
+        "test": "./vendor/bin/phpunit --colors=always",
         "ci": [
             "@composer test"
         ]
