@@ -12,9 +12,13 @@
         }
     ],
     "autoload": {
-        "psr-0": {
-            "webignition\\Tests": "tests/",
-            "": "src/"
+        "psr-4": {
+            "webignition\\NodeJslint\\Wrapper\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "webignition\\Tests\\NodeJslint\\Wrapper\\": "tests/"
         }
     },
     "require": {

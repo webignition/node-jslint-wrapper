@@ -1106,7 +1106,7 @@
         },
         {
             "name": "icanboogie/inflector",
-            "version": "v1.0",
+            "version": "v1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ICanBoogie/Inflector.git",
