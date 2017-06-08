@@ -3,34 +3,28 @@ namespace webignition\NodeJslint\Wrapper;
 
 use webignition\NodeJslint\Wrapper\Configuration\Configuration;
 use webignition\NodeJslint\Wrapper\LocalProxy\LocalProxy;
+use webignition\NodeJslintOutput\NodeJslintOutput;
 use webignition\NodeJslintOutput\Parser as OutputParser;
 
-/**
- *
- */
-class Wrapper {
-
+class Wrapper
+{
     const INVALID_ARGUMENT_EXCEPTION_CONFIGURATION_NOT_SET = 1;
 
     /**
-     *
      * @var Configuration
      */
     private $configuration;
 
-
     /**
-     *
      * @var LocalProxy
      */
     private $localProxy;
 
-
     /**
-     *
-     * @return \webignition\NodeJslint\Wrapper\Configuration\Configuration
+     * @return Configuration
      */
-    public function getConfiguration() {
+    public function getConfiguration()
+    {
         if (is_null($this->configuration)) {
             $this->configuration = new Configuration();
         }
@@ -38,25 +32,26 @@ class Wrapper {
         return $this->configuration;
     }
 
-
     /**
-     *
      * @return boolean
      */
-    public function hasConfiguration() {
+    public function hasConfiguration()
+    {
         return !is_null($this->getConfiguration());
     }
 
-
     /**
-     *
      * @throws \InvalidArgumentException
-     * @throws \webignition\NodeJslintOutput\Exception
-     * @return \webignition\NodeJslintOutput\NodeJslintOutput
+     *
+     * @return NodeJslintOutput
      */
-    public function validate() {
+    public function validate()
+    {
         if (!$this->hasConfiguration()) {
-            throw new \InvalidArgumentException('Unable to validate; configuration not set', self::INVALID_ARGUMENT_EXCEPTION_CONFIGURATION_NOT_SET);
+            throw new \InvalidArgumentException(
+                'Unable to validate; configuration not set',
+                self::INVALID_ARGUMENT_EXCEPTION_CONFIGURATION_NOT_SET
+            );
         }
 
         $validatorOutput = shell_exec($this->getExecutableCommand());
@@ -66,7 +61,6 @@ class Wrapper {
 
         $outputParser = new OutputParser();
 
-        /* @var $output \webignition\NodeJslintOutput\NodeJslintOutput */
         $output = $outputParser->parse($validatorOutput);
 
         if (!$this->getConfiguration()->hasFileUrlToLint()) {
@@ -76,29 +70,33 @@ class Wrapper {
         return $output;
     }
 
-    private function replaceLocalStatusLineWithRemoteStatusLine(\webignition\NodeJslintOutput\NodeJslintOutput $output) {
+    /**
+     * @param NodeJslintOutput $output
+     */
+    private function replaceLocalStatusLineWithRemoteStatusLine(NodeJslintOutput $output)
+    {
         $output->setStatusLine($this->getConfiguration()->getUrlToLint());
     }
 
     /**
-     *
      * @return string
      */
-    private function getExecutableCommand() {
+    private function getExecutableCommand()
+    {
         if ($this->getConfiguration()->hasFileUrlToLint()) {
             return $this->getConfiguration()->getExecutableCommand();
         }
 
         $this->getLocalProxy()->getConfiguration()->setUrlToLint($this->getConfiguration()->getUrlToLint());
+
         return $this->getExecutableCommandForRemoteResource();
     }
 
-
     /**
-     *
-     * @return \webignition\NodeJslint\Wrapper\LocalProxy\LocalProxy
+     * @return LocalProxy
      */
-    public function getLocalProxy() {
+    public function getLocalProxy()
+    {
         if (is_null($this->localProxy)) {
             $this->localProxy = $this->createLocalProxy();
         }
@@ -106,31 +104,31 @@ class Wrapper {
         return $this->localProxy;
     }
 
-
     /**
-     *
-     * @return \webignition\NodeJslint\Wrapper\LocalProxy\LocalProxy
+     * @return LocalProxy
      */
-    protected function createLocalProxy() {
+    protected function createLocalProxy()
+    {
         return new LocalProxy();
     }
 
-
     /**
-     *
-     * @param \webignition\NodeJslint\Wrapper\LocalProxy\LocalProxy $localProxy
+     * @param LocalProxy $localProxy
      */
-    protected function setLocalProxy(LocalProxy $localProxy) {
+    protected function setLocalProxy(LocalProxy $localProxy)
+    {
         $this->localProxy = $localProxy;
     }
 
-
     /**
-     *
      * @return string
      */
-    private function getExecutableCommandForRemoteResource() {
-        return str_replace($this->getConfiguration()->getUrlToLint(), $this->getLocalProxy()->getLocalRemoteResourcePath(), $this->getConfiguration()->getExecutableCommand());
+    private function getExecutableCommandForRemoteResource()
+    {
+        return str_replace(
+            $this->getConfiguration()->getUrlToLint(),
+            $this->getLocalProxy()->getLocalRemoteResourcePath(),
+            $this->getConfiguration()->getExecutableCommand()
+        );
     }
-
 }
