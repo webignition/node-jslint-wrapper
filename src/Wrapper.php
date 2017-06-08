@@ -33,6 +33,14 @@ class Wrapper
     }
 
     /**
+     * @param Configuration $configuration
+     */
+    public function setConfiguration(Configuration $configuration)
+    {
+        $this->configuration = $configuration;
+    }
+
+    /**
      * @return boolean
      */
     public function hasConfiguration()
