@@ -11,6 +11,12 @@ class Configuration
     const DEFAULT_NODE_PATH = '/usr/bin/node';
     const DEFAULT_NODE_JSLINT_PATH = '/usr/share/node-jslint/node_modules/jslint/bin/jslint.js';
 
+    const CONFIG_KEY_NODE_PATH = 'node-path';
+    const CONFIG_KEY_NODE_JSLINT_PATH = 'node-jslint-path';
+    const CONFIG_KEY_FLAGS = 'flags';
+    const CONFIG_KEY_OPTIONS = 'options';
+    const CONFIG_KEY_URL_TO_LINT = 'url-to-lint';
+
     /**
      * Full path to node executable
      *
@@ -41,116 +47,67 @@ class Configuration
     private $urlToLint = null;
 
     /**
-     * @param string $nodePath
+     * @var string[]
      */
-    public function setNodePath($nodePath)
-    {
-        $this->nodePath = $nodePath;
-    }
+    private $validFlags;
 
     /**
-     * @return string
+     * @var string[]
      */
-    public function getNodePath()
-    {
-        return (is_null($this->nodePath)) ? self::DEFAULT_NODE_PATH : $this->nodePath;
-    }
+    private $validOptions;
 
     /**
-     * @param string $nodeJslintPath
+     * @param array $configurationValues
      */
-    public function setNodeJslintPath($nodeJslintPath)
+    public function __construct($configurationValues = [])
     {
-        $this->nodeJsLintPath = $nodeJslintPath;
-    }
+        $this->validFlags = JsLintFlag::getList();
+        $this->validOptions = JsLintOption::getList();
 
-    /**
-     * @return string
-     */
-    public function getNodeJslintPath()
-    {
-        return (is_null($this->nodeJsLintPath)) ? self::DEFAULT_NODE_JSLINT_PATH : $this->nodeJsLintPath;
-    }
-
-    /**
-     * @param string $name
-     */
-    public function enableFlag($name)
-    {
-        if (!$this->isValidFlag($name)) {
-            throw new \InvalidArgumentException('Flag "'.$name.'" is not valid', 1);
+        if (!isset($configurationValues[self::CONFIG_KEY_NODE_PATH])) {
+            $configurationValues[self::CONFIG_KEY_NODE_PATH] = self::DEFAULT_NODE_PATH;
         }
 
-        $this->flags[$name] = true;
-    }
-
-    /**
-     * @param string $name
-     */
-    public function disableFlag($name)
-    {
-        if (!$this->isValidFlag($name)) {
-            throw new \InvalidArgumentException('Flag "'.$name.'" is not valid', 1);
+        if (!isset($configurationValues[self::CONFIG_KEY_NODE_JSLINT_PATH])) {
+            $configurationValues[self::CONFIG_KEY_NODE_JSLINT_PATH] = self::DEFAULT_NODE_JSLINT_PATH;
         }
 
-        $this->flags[$name] = false;
+        if (!isset($configurationValues[self::CONFIG_KEY_FLAGS])) {
+            $configurationValues[self::CONFIG_KEY_FLAGS] = [];
+        }
+
+        if (!isset($configurationValues[self::CONFIG_KEY_OPTIONS])) {
+            $configurationValues[self::CONFIG_KEY_OPTIONS] = [];
+        }
+
+        $this->nodePath = $configurationValues[self::CONFIG_KEY_NODE_PATH];
+        $this->nodeJsLintPath = $configurationValues[self::CONFIG_KEY_NODE_JSLINT_PATH];
+
+        foreach ($configurationValues[self::CONFIG_KEY_FLAGS] as $name => $value) {
+            if (in_array($name, $this->validFlags)) {
+                $this->flags[$name] = (bool)$value;
+            }
+        }
+
+        foreach ($configurationValues[self::CONFIG_KEY_OPTIONS] as $name => $value) {
+            if (in_array($name, $this->validOptions)) {
+                $this->options[$name] = $value;
+            }
+        }
+
+        if (isset($configurationValues[self::CONFIG_KEY_URL_TO_LINT])) {
+            $this->setUrlToLint($configurationValues[self::CONFIG_KEY_URL_TO_LINT]);
+        }
     }
 
     /**
      * @param string $name
-     *
-     * @return \webignition\NodeJslint\Wrapper\Configuration\Configuration
      */
     public function unsetFlag($name)
     {
         if (isset($this->flags[$name])) {
             unset($this->flags[$name]);
         }
-    }
-
-    /**
-     * @param string $name
-     *
-     * @return boolean
-     */
-    public function hasFlag($name)
-    {
-        return isset($this->flags[$name]);
-    }
-
-    /**
-     * @param string $name
-     *
-     * @return boolean
-     */
-    private function isValidFlag($name)
-    {
-        return in_array($name, JsLintFlag::getList());
-    }
-
-    /**
-     * @param string $name
-     * @param mixed $value
-     *
-     * @throws \InvalidArgumentException
-     */
-    public function setOption($name, $value)
-    {
-        if (!$this->isValidOption($name)) {
-            throw new \InvalidArgumentException('Flag "'.$name.'" is not valid', 1);
-        }
-
-        $this->options[$name] = $value;
-    }
-
-    /**
-     * @param string $name
-     *
-     * @return boolean
-     */
-    private function isValidOption($name)
-    {
-        return in_array($name, JsLintOption::getList());
     }
 
     /**
@@ -166,8 +123,8 @@ class Configuration
     }
 
     /**
-     *
      * @param string $url
+     *
      * @return boolean
      */
     private function urlHasExpectedScheme($url)
@@ -196,14 +153,6 @@ class Configuration
     }
 
     /**
-     * @return boolean
-     */
-    public function hasUrlToLint()
-    {
-        return !is_null($this->urlToLint);
-    }
-
-    /**
      * @return boolean[]
      */
     public function getFlags()
@@ -225,13 +174,13 @@ class Configuration
      */
     public function getExecutableCommand()
     {
-        if (!$this->hasUrlToLint()) {
+        if (empty($this->urlToLint)) {
             throw new \UnexpectedValueException('URL to lint not present; set this first with ->setUrlToLint()', 1);
         }
 
         $commandParts = array(
-            $this->getNodePath(),
-            $this->getNodeJslintPath(),
+            $this->nodePath,
+            $this->nodeJsLintPath,
             $this->getExecutableCommandFlagsString(),
             $this->getExecutableCommandOptionsString(),
             $this->getExecutableCommandPathToLint(),
@@ -258,7 +207,7 @@ class Configuration
      */
     public function hasFileUrlToLint()
     {
-        if (!$this->hasUrlToLint()) {
+        if (empty($this->urlToLint)) {
             return false;
         }
 
@@ -304,9 +253,6 @@ class Configuration
      */
     private function getExecutableCommandFlags()
     {
-        $flags = $this->getFlags();
-        $flags[NodeJsLintFlag::JSON] = true;
-
-        return $flags;
+        return array_merge([NodeJsLintFlag::JSON => true], $this->getFlags());
     }
 }
