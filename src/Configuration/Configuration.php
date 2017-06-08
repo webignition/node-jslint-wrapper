@@ -8,7 +8,6 @@ use webignition\NodeJslint\Wrapper\Configuration\Option\JsLint as JsLintOption;
 class Configuration
 {
     const FILE_URL_PREFIX = 'file:';
-
     const DEFAULT_NODE_PATH = '/usr/bin/node';
     const DEFAULT_NODE_JSLINT_PATH = '/usr/share/node-jslint/node_modules/jslint/bin/jslint.js';
 
@@ -43,13 +42,10 @@ class Configuration
 
     /**
      * @param string $nodePath
-     * @return \webignition\NodeJslint\Wrapper\Configuration\Configuration
      */
     public function setNodePath($nodePath)
     {
         $this->nodePath = $nodePath;
-
-        return $this;
     }
 
     /**
@@ -62,14 +58,10 @@ class Configuration
 
     /**
      * @param string $nodeJslintPath
-     *
-     * @return \webignition\NodeJslint\Wrapper\Configuration\Configuration
      */
     public function setNodeJslintPath($nodeJslintPath)
     {
         $this->nodeJsLintPath = $nodeJslintPath;
-
-        return $this;
     }
 
     /**
@@ -82,8 +74,6 @@ class Configuration
 
     /**
      * @param string $name
-     *
-     * @return \webignition\NodeJslint\Wrapper\Configuration\Configuration
      */
     public function enableFlag($name)
     {
@@ -92,14 +82,10 @@ class Configuration
         }
 
         $this->flags[$name] = true;
-
-        return $this;
     }
 
     /**
      * @param string $name
-     *
-     * @return \webignition\NodeJslint\Wrapper\Configuration\Configuration
      */
     public function disableFlag($name)
     {
@@ -108,8 +94,6 @@ class Configuration
         }
 
         $this->flags[$name] = false;
-
-        return $this;
     }
 
     /**
@@ -149,8 +133,6 @@ class Configuration
      * @param mixed $value
      *
      * @throws \InvalidArgumentException
-     *
-     * @return \webignition\NodeJslint\Wrapper\Configuration\Configuration
      */
     public function setOption($name, $value)
     {
@@ -159,7 +141,6 @@ class Configuration
         }
 
         $this->options[$name] = $value;
-        return $this;
     }
 
     /**
@@ -182,8 +163,6 @@ class Configuration
         }
 
         $this->urlToLint = $url;
-
-        return $this;
     }
 
     /**
