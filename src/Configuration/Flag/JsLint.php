@@ -1,12 +1,12 @@
 <?php
-namespace webignition\NodeJslint\Wrapper\Configuration\Flag;
 
+namespace webignition\NodeJslint\Wrapper\Configuration\Flag;
 
 /**
  * Flag names accepted by jslint v2013-08-26
  */
-class JsLint {    
-
+class JsLint
+{
     const ANON = 'anon';
     const BITWISE = 'bitwise';
     const BROWSER = 'browser';
@@ -38,13 +38,12 @@ class JsLint {
     const WHITE = 'white';
     const WIDGET = 'widget';
     const WINDOWS = 'windows';
-    
-    
+
     /**
-     * 
      * @return string[]
      */
-    public static function getList() {
+    public static function getList()
+    {
         return array(
             self::ANON,
             self::BITWISE,
@@ -79,5 +78,4 @@ class JsLint {
             self::WINDOWS,
         );
     }
-    
 }

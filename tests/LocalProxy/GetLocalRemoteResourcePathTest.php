@@ -5,13 +5,14 @@ namespace webignition\Tests\NodeJslint\Wrapper\LocalProxy;
 use webignition\NodeJslint\Wrapper\LocalProxy\LocalProxy;
 use webignition\Tests\NodeJslint\Wrapper\BaseTest;
 
-class GetLocalRemoteResourcePathTest extends BaseTest {
-
-    public function testLocalRemoteResourcePathChangesWithUrlToLint() {
-        $this->setHttpFixtures($this->buildHttpFixtureSet(array(
+class GetLocalRemoteResourcePathTest extends BaseTest
+{
+    public function testLocalRemoteResourcePathChangesWithUrlToLint()
+    {
+        $this->setHttpFixtures([
             "HTTP/1.0 200 OK\nContent-Type:application/javascript",
             "HTTP/1.0 200 OK\nContent-Type:application/javascript"
-        )));
+        ]);
 
         $localProxy = new LocalProxy();
         $localProxy->getConfiguration()->setHttpClient($this->getHttpClient());
@@ -24,5 +25,4 @@ class GetLocalRemoteResourcePathTest extends BaseTest {
 
         $this->assertFalse($localPathOne === $localPathTwo);
     }
-
 }
