@@ -17,13 +17,10 @@ class Configuration
 
     /**
      * @param HttpClient $httpClient
-     *
-     * @return $this
      */
     public function setHttpClient(HttpClient $httpClient)
     {
         $this->httpClient = $httpClient;
-        return $this;
     }
 
     /**
@@ -40,7 +37,7 @@ class Configuration
 
     /**
      * @param $url
-     * @return $this
+
      * @throws \InvalidArgumentException
      */
     public function setUrlToLint($url)
@@ -50,14 +47,12 @@ class Configuration
         }
 
         $this->urlToLint = $url;
-
-        return $this;
     }
 
     /**
      * @param string $url
      *
-     * @return boolean
+     * @return bool
      */
     private function urlHasExpectedScheme($url)
     {
@@ -84,7 +79,7 @@ class Configuration
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function hasUrlToLint()
     {

@@ -1,4 +1,0 @@
-HTTP/1.0 200 Ok
-Content-type: application/javascript;
-
-var x = 1;
