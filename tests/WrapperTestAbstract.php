@@ -70,10 +70,8 @@ class WrapperTestAbstract extends AbstractBaseTest
             $this->getFixture('IncorrectNodeJsPathOutput')
         );
 
-        $this->setExpectedException(
-            NodeJslintOutputException::class,
-            'node-jslint not found at "/home/example/node_modules/jslint/bin/jslint.js"'
-        );
+        $this->expectException(NodeJslintOutputException::class);
+        $this->expectExceptionMessage('node-jslint not found at "/home/example/node_modules/jslint/bin/jslint.js"');
 
         $this->wrapper->validate();
     }
@@ -92,10 +90,8 @@ class WrapperTestAbstract extends AbstractBaseTest
             $this->getFixture('LocalFileNotFoundOutput')
         );
 
-        $this->setExpectedException(
-            NodeJslintOutputException::class,
-            'Input file "/home/example/script.js" not found'
-        );
+        $this->expectException(NodeJslintOutputException::class);
+        $this->expectExceptionMessage('Input file "/home/example/script.js" not found');
 
         $this->wrapper->validate();
     }
@@ -127,11 +123,9 @@ class WrapperTestAbstract extends AbstractBaseTest
      */
     public function testValidateRemoteFileInvalidUrl()
     {
-        $this->setExpectedException(
-            \InvalidArgumentException::class,
-            'Url "'.self::INVALID_REMOTE_URL_TO_LINT.'" is not valid',
-            1
-        );
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Url "'.self::INVALID_REMOTE_URL_TO_LINT.'" is not valid');
+        $this->expectExceptionCode(1);
 
         $this->wrapper->getConfiguration()->setUrlToLint(self::INVALID_REMOTE_URL_TO_LINT);
         $this->wrapper->validate();

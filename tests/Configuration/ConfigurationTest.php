@@ -186,11 +186,9 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
 
     public function testGetExecutableCommandNoUrlToLintSet()
     {
-        $this->setExpectedException(
-            \UnexpectedValueException::class,
-            'URL to lint not present; set this first with ->setUrlToLint()',
-            1
-        );
+        $this->expectException(\UnexpectedValueException::class);
+        $this->expectExceptionMessage('URL to lint not present; set this first with ->setUrlToLint()');
+        $this->expectExceptionCode(1);
 
         $configuration = new Configuration();
         $configuration->getExecutableCommand();

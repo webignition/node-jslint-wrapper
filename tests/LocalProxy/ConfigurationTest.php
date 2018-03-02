@@ -64,11 +64,9 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
     {
         $url = 'ftp://example.com/foo.js';
 
-        $this->setExpectedException(
-            \InvalidArgumentException::class,
-            'Url "' . $url . '" is not valid',
-            1
-        );
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Url "' . $url . '" is not valid');
+        $this->expectExceptionCode(1);
 
         $this->configuration->setUrlToLint($url);
     }

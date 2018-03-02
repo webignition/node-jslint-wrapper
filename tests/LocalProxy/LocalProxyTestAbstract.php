@@ -41,11 +41,9 @@ class LocalProxyTestAbstract extends AbstractBaseTest
      */
     public function testGetLocalRemoteResourcePathUrlToLintNotSet()
     {
-        $this->setExpectedException(
-            \RuntimeException::class,
-            'Url to lint has not been set',
-            1
-        );
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Url to lint has not been set');
+        $this->expectExceptionCode(1);
 
         $this->localProxy->getLocalRemoteResourcePath();
     }
