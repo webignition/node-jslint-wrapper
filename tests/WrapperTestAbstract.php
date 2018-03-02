@@ -12,7 +12,7 @@ use webignition\NodeJslintOutput\NodeJslintOutput;
 use webignition\NodeJslintOutput\Exception as NodeJslintOutputException;
 use webignition\WebResource\Exception\Exception as WebResourceException;
 
-class WrapperTest extends BaseTest
+class WrapperTestAbstract extends AbstractBaseTest
 {
     const FILE_URL_TO_LINT = 'file:/home/example/script.js';
     const REMOTE_URL_TO_LINT = 'http://example.com/example.js';
@@ -151,7 +151,7 @@ class WrapperTest extends BaseTest
             'HTTP/1.1 ' . $responseStatusCode,
         ]);
 
-        $this->wrapper->getLocalProxy()->getConfiguration()->setHttpClient($this->getHttpClient());
+        $this->wrapper->getLocalProxy()->getConfiguration()->setHttpClient($this->httpClient);
 
         try {
             $this->wrapper->validate();
@@ -180,7 +180,7 @@ class WrapperTest extends BaseTest
             )
         ]);
 
-        $this->wrapper->getLocalProxy()->getConfiguration()->setHttpClient($this->getHttpClient());
+        $this->wrapper->getLocalProxy()->getConfiguration()->setHttpClient($this->httpClient);
 
         try {
             $this->wrapper->validate();
@@ -205,7 +205,7 @@ class WrapperTest extends BaseTest
         ]);
 
         $this->wrapper->getConfiguration()->setUrlToLint(self::REMOTE_URL_TO_LINT);
-        $this->wrapper->getLocalProxy()->getConfiguration()->setHttpClient($this->getHttpClient());
+        $this->wrapper->getLocalProxy()->getConfiguration()->setHttpClient($this->httpClient);
         $output = $this->wrapper->validate();
 
         $this->assertEquals(self::REMOTE_URL_TO_LINT, $output->getStatusLine());

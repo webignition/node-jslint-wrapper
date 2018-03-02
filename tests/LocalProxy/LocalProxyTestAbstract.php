@@ -4,10 +4,10 @@ namespace webignition\Tests\NodeJslint\Wrapper\LocalProxy\Configuration;
 
 use webignition\NodeJslint\Wrapper\LocalProxy\Configuration;
 use webignition\NodeJslint\Wrapper\LocalProxy\LocalProxy;
-use webignition\Tests\NodeJslint\Wrapper\BaseTest;
+use webignition\Tests\NodeJslint\Wrapper\AbstractBaseTest;
 use webignition\WebResource\Service\Service as WebResourceService;
 
-class LocalProxyTest extends BaseTest
+class LocalProxyTestAbstract extends AbstractBaseTest
 {
     /**
      * @var LocalProxy
@@ -62,7 +62,7 @@ class LocalProxyTest extends BaseTest
             "HTTP/1.0 200 OK\nContent-Type:application/javascript",
         ]);
 
-        $this->localProxy->getConfiguration()->setHttpClient($this->getHttpClient());
+        $this->localProxy->getConfiguration()->setHttpClient($this->httpClient);
         $this->localProxy->getConfiguration()->setUrlToLint('http://example.com/one.js');
 
         $localPathOne = $this->localProxy->getLocalRemoteResourcePath();
@@ -84,7 +84,7 @@ class LocalProxyTest extends BaseTest
             "HTTP/1.0 200 OK\nContent-Type:application/javascript",
         ]);
 
-        $this->localProxy->getConfiguration()->setHttpClient($this->getHttpClient());
+        $this->localProxy->getConfiguration()->setHttpClient($this->httpClient);
         $this->localProxy->getConfiguration()->setUrlToLint('http://example.com/one.js');
 
         $localPath = $this->localProxy->getLocalRemoteResourcePath();
