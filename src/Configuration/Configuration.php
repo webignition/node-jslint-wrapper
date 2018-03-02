@@ -34,12 +34,12 @@ class Configuration
     /**
      * @var boolean[]
      */
-    private $flags = array();
+    private $flags = [];
 
     /**
      * @var array
      */
-    private $options = array();
+    private $options = [];
 
     /**
      * @var string
@@ -129,11 +129,11 @@ class Configuration
      */
     private function urlHasExpectedScheme($url)
     {
-        $expectedSchemes = array(
+        $expectedSchemes = [
             'http:',
             'https:',
             'file:'
-        );
+        ];
 
         foreach ($expectedSchemes as $scheme) {
             if (substr($url, 0, strlen($scheme)) == $scheme) {
@@ -178,14 +178,14 @@ class Configuration
             throw new \UnexpectedValueException('URL to lint not present; set this first with ->setUrlToLint()', 1);
         }
 
-        $commandParts = array(
+        $commandParts = [
             $this->nodePath,
             $this->nodeJsLintPath,
             $this->getExecutableCommandFlagsString(),
             $this->getExecutableCommandOptionsString(),
             $this->getExecutableCommandPathToLint(),
             '2>&1'
-        );
+        ];
 
         return str_replace('  ', ' ', implode(' ', $commandParts));
     }
@@ -219,7 +219,7 @@ class Configuration
      */
     private function getExecutableCommandFlagsString()
     {
-        $flagStrings = array();
+        $flagStrings = [];
 
         foreach ($this->getExecutableCommandFlags() as $name => $value) {
             $flagStrings[] = '--' . $name . '=' . (($value) ?  'true' : 'false');
@@ -233,7 +233,7 @@ class Configuration
      */
     private function getExecutableCommandOptionsString()
     {
-        $optionStrings = array();
+        $optionStrings = [];
 
         foreach ($this->getOptions() as $name => $value) {
             if ($name === JsLintOption::PREDEF && is_array($value)) {

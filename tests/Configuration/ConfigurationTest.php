@@ -4,6 +4,7 @@ namespace webignition\Tests\NodeJslint\Wrapper\Configuration\Flag;
 
 use webignition\NodeJslint\Wrapper\Configuration\Configuration;
 use webignition\NodeJslint\Wrapper\Configuration\Flag\JsLint as JsLintFlag;
+use webignition\NodeJslint\Wrapper\Configuration\Flag\JsLint;
 use webignition\NodeJslint\Wrapper\Configuration\Option\JsLint as JsLintOption;
 
 class ConfigurationTest extends \PHPUnit_Framework_TestCase
@@ -143,7 +144,63 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
                 'expectedOptions' => [],
                 $this->getDefaultExecutableCommandPrefix() . '/foo.js 2>&1',
             ],
+            'jslint predef array of values' => [
+                'configurationValues' => [
+                    Configuration::CONFIG_KEY_URL_TO_LINT => '/foo.js',
+                    Configuration::CONFIG_KEY_OPTIONS => [
+                        JsLintOption::PREDEF => [
+                            'predef-foo',
+                            'predef-bar',
+                        ],
+                    ],
+                ],
+                'expectedUrlToLint' => 'file:/foo.js',
+                'expectedFlags' => [],
+                'expectedOptions' => [
+                    'predef' => [
+                        'predef-foo',
+                        'predef-bar',
+                    ],
+                ],
+                $this->getDefaultExecutableCommandPrefix() . '--predef=predef-foo --predef=predef-bar /foo.js 2>&1',
+            ],
         ];
+    }
+
+    public function testUnsetFlag()
+    {
+        $configuration = new Configuration([
+            Configuration::CONFIG_KEY_FLAGS => [
+                JsLint::ANON => true,
+            ],
+        ]);
+
+        $this->assertEquals([
+            JsLint::ANON => true,
+        ], $configuration->getFlags());
+
+        $configuration->unsetFlag(JsLint::ANON);
+
+        $this->assertEmpty($configuration->getFlags());
+    }
+
+    public function testGetExecutableCommandNoUrlToLintSet()
+    {
+        $this->setExpectedException(
+            \UnexpectedValueException::class,
+            'URL to lint not present; set this first with ->setUrlToLint()',
+            1
+        );
+
+        $configuration = new Configuration();
+        $configuration->getExecutableCommand();
+    }
+
+    public function testNotHasFileUrlToLint()
+    {
+        $configuration = new Configuration();
+
+        $this->assertFalse($configuration->hasFileUrlToLint());
     }
 
     /**
