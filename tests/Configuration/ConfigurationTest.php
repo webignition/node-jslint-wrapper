@@ -1,6 +1,6 @@
 <?php
 
-namespace webignition\Tests\NodeJslint\Wrapper\Configuration\Flag;
+namespace webignition\Tests\NodeJslint\Wrapper\Configuration;
 
 use webignition\NodeJslint\Wrapper\Configuration\Configuration;
 use webignition\NodeJslint\Wrapper\Configuration\Flag\JsLint as JsLintFlag;

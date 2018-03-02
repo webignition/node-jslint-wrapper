@@ -5,6 +5,8 @@ namespace webignition\NodeJslint\Wrapper\LocalProxy;
 use webignition\WebResource\Exception\InvalidContentTypeException;
 use webignition\WebResource\Service\Configuration as WebResourceServiceConfiguration;
 use webignition\WebResource\Service\Service as WebResourceService;
+use webignition\WebResource\WebResource;
+use webignition\WebResource\Exception as WebResourceException;
 
 /**
  * node-jslint can only be run against local files (such as /home/example/script.js)
@@ -27,6 +29,11 @@ class LocalProxy
      * @var Configuration
      */
     private $configuration = null;
+
+    public function __construct()
+    {
+        $this->configuration = new Configuration();
+    }
 
     /**
      * @return WebResourceService
@@ -54,16 +61,14 @@ class LocalProxy
      */
     public function getConfiguration()
     {
-        if (is_null($this->configuration)) {
-            $this->configuration = new Configuration();
-        }
-
         return $this->configuration;
     }
 
     /**
-     * @return \webignition\WebResource\WebResource
+     * @return WebResource
+     *
      * @throws InvalidContentTypeException
+     * @throws WebResourceException\Exception
      */
     private function retrieveRemoteResource()
     {
@@ -75,26 +80,36 @@ class LocalProxy
 
     /**
      * @return string
+     *
+     * @throws InvalidContentTypeException
+     * @throws WebResourceException
+     * @throws WebResourceException\Exception
      */
     public function getLocalRemoteResourcePath()
     {
-        if (!isset($this->localRemoteResourcePaths[$this->getUrlToLintHash()])) {
-            $this->localRemoteResourcePaths[$this->getUrlToLintHash()] =
+        if (!$this->getConfiguration()->hasUrlToLint()) {
+            throw new \RuntimeException('Url to lint has not been set', 1);
+        }
+
+        $urlToLintHash = md5($this->getConfiguration()->getUrlToLint());
+
+        if (!isset($this->localRemoteResourcePaths[$urlToLintHash])) {
+            $this->localRemoteResourcePaths[$urlToLintHash] =
                 sys_get_temp_dir()
                 . '/'
-                . $this->getUrlToLintHash()
+                . $urlToLintHash
                 . '.'
                 . $this->getLocalRemoteResourcePathTimestamp()
                 . '.js';
 
             $resource = $this->retrieveRemoteResource();
             file_put_contents(
-                $this->localRemoteResourcePaths[$this->getUrlToLintHash()],
-                $resource->getHttpResponse()->getBody(true)
+                $this->localRemoteResourcePaths[$urlToLintHash],
+                $resource->getHttpResponse()->getBody()
             );
         }
 
-        return $this->localRemoteResourcePaths[$this->getUrlToLintHash()];
+        return $this->localRemoteResourcePaths[$urlToLintHash];
     }
 
     /**
@@ -103,19 +118,6 @@ class LocalProxy
     protected function getLocalRemoteResourcePathTimestamp()
     {
         return (string)microtime(true);
-    }
-
-    /**
-     * @return string
-     * @throws \RuntimeException
-     */
-    private function getUrlToLintHash()
-    {
-        if (!$this->getConfiguration()->hasUrlToLint()) {
-            throw new \RuntimeException('Url to lint has not been set', 1);
-        }
-
-        return md5($this->getConfiguration()->getUrlToLint());
     }
 
     public function clearLocalRemoteResource()
