@@ -43,7 +43,7 @@ class LocalProxy
         if (is_null($this->webResourceService)) {
             $this->webResourceService = new WebResourceService();
             $this->webResourceService->setConfiguration(new WebResourceServiceConfiguration([
-                WebResourceServiceConfiguration::CONFIG_KEY_HTTP_CLIENT => $this->getConfiguration()->getHttpClient(),
+                WebResourceServiceConfiguration::CONFIG_KEY_HTTP_CLIENT => $this->configuration->getHttpClient(),
                 WebResourceServiceConfiguration::CONFIG_ALLOW_UNKNOWN_RESOURCE_TYPES => false,
                 WebResourceServiceConfiguration::CONFIG_KEY_CONTENT_TYPE_WEB_RESOURCE_MAP => [
                     'text/javascript' => 'webignition\WebResource\WebResource',
@@ -72,9 +72,9 @@ class LocalProxy
      */
     private function retrieveRemoteResource()
     {
-        return $this->getWebResourceService()->get($this->getConfiguration()->getHttpClient()->createRequest(
+        return $this->getWebResourceService()->get($this->configuration->getHttpClient()->createRequest(
             'GET',
-            $this->getConfiguration()->getUrlToLint()
+            $this->configuration->getUrlToLint()
         ));
     }
 
@@ -87,11 +87,11 @@ class LocalProxy
      */
     public function getLocalRemoteResourcePath()
     {
-        if (!$this->getConfiguration()->hasUrlToLint()) {
+        if (!$this->configuration->hasUrlToLint()) {
             throw new \RuntimeException('Url to lint has not been set', 1);
         }
 
-        $urlToLintHash = md5($this->getConfiguration()->getUrlToLint());
+        $urlToLintHash = md5($this->configuration->getUrlToLint());
 
         if (!isset($this->localRemoteResourcePaths[$urlToLintHash])) {
             $this->localRemoteResourcePaths[$urlToLintHash] =

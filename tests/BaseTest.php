@@ -62,11 +62,7 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
      */
     protected function getFixture($fixtureName)
     {
-        if (file_exists($this->getTestFixturePath() . '/' . $fixtureName)) {
-            return file_get_contents($this->getTestFixturePath() . '/' . $fixtureName);
-        }
-
-        return file_get_contents(__DIR__ . self::FIXTURES_BASE_PATH . '/Common/' . $fixtureName);
+        return file_get_contents(__DIR__ . self::FIXTURES_BASE_PATH . '/' . $fixtureName . '.txt');
     }
 
     /**

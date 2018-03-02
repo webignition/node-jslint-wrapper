@@ -20,15 +20,17 @@ class Wrapper
      */
     private $localProxy;
 
+    public function __construct()
+    {
+        $this->configuration = new Configuration();
+        $this->localProxy = new LocalProxy();
+    }
+
     /**
      * @return Configuration
      */
     public function getConfiguration()
     {
-        if (is_null($this->configuration)) {
-            $this->configuration = new Configuration();
-        }
-
         return $this->configuration;
     }
 
@@ -49,29 +51,17 @@ class Wrapper
     }
 
     /**
-     * @return boolean
-     */
-    public function hasConfiguration()
-    {
-        return !is_null($this->getConfiguration());
-    }
-
-    /**
-     * @throws \InvalidArgumentException
-     *
      * @return NodeJslintOutput
+     *
+     * @throws \webignition\NodeJslintOutput\Exception
+     * @throws \webignition\WebResource\Exception
+     * @throws \webignition\WebResource\Exception\Exception
+     * @throws \webignition\WebResource\Exception\InvalidContentTypeException
      */
     public function validate()
     {
-        if (!$this->hasConfiguration()) {
-            throw new \InvalidArgumentException(
-                'Unable to validate; configuration not set',
-                self::INVALID_ARGUMENT_EXCEPTION_CONFIGURATION_NOT_SET
-            );
-        }
-
         $validatorOutput = shell_exec($this->getExecutableCommand());
-        if (!$this->getConfiguration()->hasFileUrlToLint()) {
+        if (!$this->configuration->hasFileUrlToLint()) {
             $this->getLocalProxy()->clearLocalRemoteResource();
         }
 
@@ -79,7 +69,7 @@ class Wrapper
 
         $output = $outputParser->parse($validatorOutput);
 
-        if (!$this->getConfiguration()->hasFileUrlToLint()) {
+        if (!$this->configuration->hasFileUrlToLint()) {
             $this->replaceLocalStatusLineWithRemoteStatusLine($output);
         }
 
@@ -91,19 +81,23 @@ class Wrapper
      */
     private function replaceLocalStatusLineWithRemoteStatusLine(NodeJslintOutput $output)
     {
-        $output->setStatusLine($this->getConfiguration()->getUrlToLint());
+        $output->setStatusLine($this->configuration->getUrlToLint());
     }
 
     /**
      * @return string
+     *
+     * @throws \webignition\WebResource\Exception
+     * @throws \webignition\WebResource\Exception\Exception
+     * @throws \webignition\WebResource\Exception\InvalidContentTypeException
      */
     private function getExecutableCommand()
     {
-        if ($this->getConfiguration()->hasFileUrlToLint()) {
-            return $this->getConfiguration()->getExecutableCommand();
+        if ($this->configuration->hasFileUrlToLint()) {
+            return $this->configuration->getExecutableCommand();
         }
 
-        $this->getLocalProxy()->getConfiguration()->setUrlToLint($this->getConfiguration()->getUrlToLint());
+        $this->getLocalProxy()->getConfiguration()->setUrlToLint($this->configuration->getUrlToLint());
 
         return $this->getExecutableCommandForRemoteResource();
     }
@@ -113,38 +107,22 @@ class Wrapper
      */
     public function getLocalProxy()
     {
-        if (is_null($this->localProxy)) {
-            $this->localProxy = $this->createLocalProxy();
-        }
-
         return $this->localProxy;
     }
 
     /**
-     * @return LocalProxy
-     */
-    protected function createLocalProxy()
-    {
-        return new LocalProxy();
-    }
-
-    /**
-     * @param LocalProxy $localProxy
-     */
-    protected function setLocalProxy(LocalProxy $localProxy)
-    {
-        $this->localProxy = $localProxy;
-    }
-
-    /**
      * @return string
+     *
+     * @throws \webignition\WebResource\Exception
+     * @throws \webignition\WebResource\Exception\Exception
+     * @throws \webignition\WebResource\Exception\InvalidContentTypeException
      */
     private function getExecutableCommandForRemoteResource()
     {
         return str_replace(
-            $this->getConfiguration()->getUrlToLint(),
+            $this->configuration->getUrlToLint(),
             $this->getLocalProxy()->getLocalRemoteResourcePath(),
-            $this->getConfiguration()->getExecutableCommand()
+            $this->configuration->getExecutableCommand()
         );
     }
 }
