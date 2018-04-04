@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "f34ab07512d703401b3c6cd8c9e878a0",
+    "content-hash": "92b25f2355e2aadbf9b8cfe8e5d722e9",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -994,6 +994,58 @@
                 "issues": "https://github.com/webignition/web-resource-retriever/issues"
             },
             "time": "2018-03-29T18:06:17+00:00"
+        },
+        {
+            "name": "webignition/web-resource-storage",
+            "version": "0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/webignition/web-resource-storage.git",
+                "reference": "e871fc2622e14dc0fbf8b6461d22352c3a9ed7fb"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/webignition/web-resource-storage/zipball/e871fc2622e14dc0fbf8b6461d22352c3a9ed7fb",
+                "reference": "e871fc2622e14dc0fbf8b6461d22352c3a9ed7fb",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.6.0",
+                "webignition/internet-media-type-interface": "^0.1",
+                "webignition/web-resource-interfaces": ">=0.11,<1"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.0",
+                "phpunit/phpunit": "^5.0",
+                "squizlabs/php_codesniffer": "^3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "webignition\\WebResource\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jon Cram",
+                    "email": "jon@webignition.net"
+                }
+            ],
+            "description": "Local storage for a retrieved web resource",
+            "homepage": "https://github.com/webignition/web-resource-storage",
+            "keywords": [
+                "json-document",
+                "psr-7",
+                "resource",
+                "storage",
+                "web",
+                "web-page"
+            ],
+            "time": "2018-04-04T12:17:12+00:00"
         }
     ],
     "packages-dev": [
