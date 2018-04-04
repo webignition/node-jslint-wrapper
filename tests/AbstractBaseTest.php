@@ -2,21 +2,22 @@
 
 namespace webignition\Tests\NodeJslint\Wrapper;
 
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
 use phpmock\mockery\PHPMockery;
-use webignition\NodeJslint\Wrapper\Configuration\Flag\JsLint as JsLintFlag;
 use GuzzleHttp\Client as HttpClient;
-use GuzzleHttp\Subscriber\Mock as HttpMockSubscriber;
-use webignition\NodeJslint\Wrapper\Wrapper;
 
 abstract class AbstractBaseTest extends \PHPUnit_Framework_TestCase
 {
-    const FIXTURES_BASE_PATH = '/fixtures';
+    /**
+     * @var MockHandler
+     */
+    private $mockHandler;
 
     /**
      * @var HttpClient
      */
-    protected $httpClient = null;
-
+    protected $httpClient;
     /**
      * {@inheritdoc}
      */
@@ -24,27 +25,8 @@ abstract class AbstractBaseTest extends \PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $this->httpClient = new HttpClient();
-    }
-
-    /**
-     * @param string $fixtureName
-     *
-     * @return string
-     */
-    protected function getFixture($fixtureName)
-    {
-        return file_get_contents(__DIR__ . self::FIXTURES_BASE_PATH . '/' . $fixtureName . '.txt');
-    }
-
-    /**
-     * @param array $fixtures
-     */
-    protected function setHttpFixtures($fixtures)
-    {
-        $this->httpClient->getEmitter()->attach(
-            new HttpMockSubscriber($fixtures)
-        );
+        $this->mockHandler = new MockHandler();
+        $this->httpClient = new HttpClient(['handler' => HandlerStack::create($this->mockHandler)]);
     }
 
     /**
@@ -58,6 +40,26 @@ abstract class AbstractBaseTest extends \PHPUnit_Framework_TestCase
         )->andReturn(
             $rawOutput
         );
+    }
+
+    /**
+     * @param array $httpFixtures
+     */
+    protected function appendHttpFixtures(array $httpFixtures)
+    {
+        foreach ($httpFixtures as $httpFixture) {
+            $this->mockHandler->append($httpFixture);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function assertPostConditions()
+    {
+        parent::assertPostConditions();
+
+        $this->assertEquals(0, $this->mockHandler->count());
     }
 
     /**
