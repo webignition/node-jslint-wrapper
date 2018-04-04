@@ -7,7 +7,7 @@ use webignition\NodeJslint\Wrapper\LocalProxy\LocalProxy;
 use webignition\Tests\NodeJslint\Wrapper\AbstractBaseTest;
 use webignition\WebResource\Service\Service as WebResourceService;
 
-class LocalProxyTestAbstract extends AbstractBaseTest
+class LocalProxyTest extends AbstractBaseTest
 {
     /**
      * @var LocalProxy

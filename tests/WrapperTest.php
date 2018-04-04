@@ -12,7 +12,7 @@ use webignition\NodeJslintOutput\NodeJslintOutput;
 use webignition\NodeJslintOutput\Exception as NodeJslintOutputException;
 use webignition\WebResource\Exception\Exception as WebResourceException;
 
-class WrapperTestAbstract extends AbstractBaseTest
+class WrapperTest extends AbstractBaseTest
 {
     const FILE_URL_TO_LINT = 'file:/home/example/script.js';
     const REMOTE_URL_TO_LINT = 'http://example.com/example.js';
