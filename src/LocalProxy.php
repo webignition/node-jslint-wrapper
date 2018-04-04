@@ -47,6 +47,14 @@ class LocalProxy
     }
 
     /**
+     * @param HttpClient $httpClient
+     */
+    public function setHttpClient(HttpClient $httpClient)
+    {
+        $this->webResourceRetriever->setHttpClient($httpClient);
+    }
+
+    /**
      * @param string $urlToLint
      * @return string
      *

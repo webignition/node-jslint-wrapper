@@ -1,37 +1,67 @@
 <?php
+
 namespace webignition\NodeJslint\Wrapper;
 
+use GuzzleHttp\Client as HttpClient;
+use GuzzleHttp\Psr7\Request;
+use webignition\InternetMediaType\Parser\ParseException as InternetMediaTypeParseException;
 use webignition\NodeJslint\Wrapper\Configuration\Configuration;
-use webignition\NodeJslint\Wrapper\LocalProxy\LocalProxy;
+use webignition\NodeJslintOutput\Entry\ParserException as NodeLslintEntryParserException;
+use webignition\NodeJslintOutput\Exception as NodeJslintException;
 use webignition\NodeJslintOutput\NodeJslintOutput;
 use webignition\NodeJslintOutput\Parser as OutputParser;
+use webignition\WebResource\Exception\HttpException;
+use webignition\WebResource\Exception\InvalidResponseContentTypeException;
+use webignition\WebResource\Exception\TransportException;
+use webignition\WebResource\Retriever as WebResourceRetriever;
+use webignition\WebResource\Storage as WebResourceStorage;
 
 class Wrapper
 {
-    const INVALID_ARGUMENT_EXCEPTION_CONFIGURATION_NOT_SET = 1;
-
     /**
      * @var Configuration
      */
     private $configuration;
 
     /**
-     * @var LocalProxy
+     * @var CommandFactory
      */
-    private $localProxy;
+    private $commandFactory;
+
+    /**
+     * @var WebResourceRetriever
+     */
+    private $webResourceRetriever;
+
+    /**
+     * @var WebResourceStorage
+     */
+    private $webResourceStorage;
 
     public function __construct()
     {
-        $this->configuration = new Configuration();
-        $this->localProxy = new LocalProxy();
+        $this->setConfiguration(new Configuration());
+        $httpClient = new HttpClient();
+
+        $this->webResourceRetriever = new WebResourceRetriever(
+            $httpClient,
+            [
+                'text/javascript',
+                'application/javascript',
+                'application/x-javascript',
+            ],
+            false
+        );
+
+        $this->webResourceStorage = new WebResourceStorage();
     }
 
     /**
-     * @return Configuration
+     * @param HttpClient $httpClient
      */
-    public function getConfiguration()
+    public function setHttpClient(HttpClient $httpClient)
     {
-        return $this->configuration;
+        $this->webResourceRetriever->setHttpClient($httpClient);
     }
 
     /**
@@ -40,89 +70,103 @@ class Wrapper
     public function setConfiguration(Configuration $configuration)
     {
         $this->configuration = $configuration;
+        $this->commandFactory = new CommandFactory($configuration);
     }
 
     /**
-     * @param $configurationValues
-     */
-    public function createConfiguration($configurationValues)
-    {
-        $this->setConfiguration(new Configuration($configurationValues));
-    }
-
-    /**
+     * @param string $urlToLint
+     *
      * @return NodeJslintOutput
      *
-     * @throws \webignition\NodeJslintOutput\Exception
-     * @throws \webignition\WebResource\Exception
-     * @throws \webignition\WebResource\Exception\Exception
-     * @throws \webignition\WebResource\Exception\InvalidContentTypeException
+     * @throws HttpException
+     * @throws InternetMediaTypeParseException
+     * @throws InvalidResponseContentTypeException
+     * @throws TransportException
+     * @throws NodeLslintEntryParserException
+     * @throws NodeJslintException
      */
-    public function validate()
+    public function validate($urlToLint)
     {
-        $validatorOutput = shell_exec($this->getExecutableCommand());
-        if (!$this->configuration->hasFileUrlToLint()) {
-            $this->getLocalProxy()->clearLocalRemoteResource();
+        if (!$this->urlHasExpectedScheme($urlToLint)) {
+            throw new \InvalidArgumentException('Url "' . $urlToLint . '" is not valid', 100);
+        }
+
+        $isFileUrl = FileUrlDetector::isFileUrl($urlToLint);
+
+        $validatorOutput = shell_exec($this->getExecutableCommand($urlToLint));
+        if (!$isFileUrl) {
+            $this->webResourceStorage->reset();
         }
 
         $outputParser = new OutputParser();
 
         $output = $outputParser->parse($validatorOutput);
 
-        if (!$this->configuration->hasFileUrlToLint()) {
-            $this->replaceLocalStatusLineWithRemoteStatusLine($output);
+        if (!$isFileUrl) {
+            $output->setStatusLine($urlToLint);
         }
 
         return $output;
     }
 
     /**
-     * @param NodeJslintOutput $output
-     */
-    private function replaceLocalStatusLineWithRemoteStatusLine(NodeJslintOutput $output)
-    {
-        $output->setStatusLine($this->configuration->getUrlToLint());
-    }
-
-    /**
-     * @return string
+     * @param string $url
      *
-     * @throws \webignition\WebResource\Exception
-     * @throws \webignition\WebResource\Exception\Exception
-     * @throws \webignition\WebResource\Exception\InvalidContentTypeException
+     * @return boolean
      */
-    private function getExecutableCommand()
+    private function urlHasExpectedScheme($url)
     {
-        if ($this->configuration->hasFileUrlToLint()) {
-            return $this->configuration->getExecutableCommand();
+        $expectedSchemes = [
+            'http:',
+            'https:',
+            'file:'
+        ];
+
+        foreach ($expectedSchemes as $scheme) {
+            if (substr($url, 0, strlen($scheme)) == $scheme) {
+                return true;
+            }
         }
 
-        $this->getLocalProxy()->getConfiguration()->setUrlToLint($this->configuration->getUrlToLint());
-
-        return $this->getExecutableCommandForRemoteResource();
+        return false;
     }
 
     /**
-     * @return LocalProxy
-     */
-    public function getLocalProxy()
-    {
-        return $this->localProxy;
-    }
-
-    /**
+     * @param $urlToLint
+     *
      * @return string
      *
-     * @throws \webignition\WebResource\Exception
-     * @throws \webignition\WebResource\Exception\Exception
-     * @throws \webignition\WebResource\Exception\InvalidContentTypeException
+     * @throws InternetMediaTypeParseException
+     * @throws HttpException
+     * @throws InvalidResponseContentTypeException
+     * @throws TransportException
      */
-    private function getExecutableCommandForRemoteResource()
+    private function getExecutableCommand($urlToLint)
     {
-        return str_replace(
-            $this->configuration->getUrlToLint(),
-            $this->getLocalProxy()->getLocalRemoteResourcePath(),
-            $this->configuration->getExecutableCommand()
-        );
+        $executableCommand = $this->commandFactory->create($urlToLint);
+        if (FileUrlDetector::isFileUrl($urlToLint)) {
+            return $executableCommand;
+        }
+
+        $localRemoteResourcePath = $this->createLocalPathForRemoteResource($urlToLint);
+
+        return str_replace($urlToLint, $localRemoteResourcePath, $executableCommand);
+    }
+
+    /**
+     * @param string $urlToLint
+     * @return string
+     *
+     * @throws HttpException
+     * @throws InternetMediaTypeParseException
+     * @throws InvalidResponseContentTypeException
+     * @throws TransportException
+     */
+    public function createLocalPathForRemoteResource($urlToLint)
+    {
+        $request = new Request('GET', $urlToLint);
+        $webResource = $this->webResourceRetriever->retrieve($request);
+
+        return $this->webResourceStorage->store($webResource);
     }
 }

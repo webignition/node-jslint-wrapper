@@ -3,14 +3,17 @@
 namespace webignition\Tests\NodeJslint\Wrapper;
 
 use GuzzleHttp\Exception\ConnectException;
-use GuzzleHttp\Message\Request;
-use webignition\NodeJslint\Wrapper\Configuration\Configuration;
-use webignition\NodeJslint\Wrapper\Configuration\Flag\JsLint;
-use webignition\NodeJslint\Wrapper\LocalProxy\LocalProxy;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
+use webignition\InternetMediaType\Parser\ParseException as InternetMediaTypeParseException;
 use webignition\NodeJslint\Wrapper\Wrapper;
+use webignition\NodeJslintOutput\Entry\ParserException as NodeJslintOutputEntryParserException;
 use webignition\NodeJslintOutput\NodeJslintOutput;
 use webignition\NodeJslintOutput\Exception as NodeJslintOutputException;
-use webignition\WebResource\Exception\Exception as WebResourceException;
+use webignition\Tests\NodeJslint\Wrapper\Factory\FixtureLoader;
+use webignition\WebResource\Exception\HttpException;
+use webignition\WebResource\Exception\InvalidResponseContentTypeException;
+use webignition\WebResource\Exception\TransportException;
 
 class WrapperTest extends AbstractBaseTest
 {
@@ -31,177 +34,145 @@ class WrapperTest extends AbstractBaseTest
         parent::setUp();
 
         $this->wrapper = new Wrapper();
+        $this->wrapper->setHttpClient($this->httpClient);
     }
 
-    public function testCreateConfiguration()
+    /**
+     * @dataProvider validateThrowsExceptionDataProvider
+     *
+     * @param string $urlToLint
+     * @param array $httpFixtures
+     * @param string $validatorRawOutput
+     * @param string $expectedException
+     * @param string $expectedExceptionMessage
+     * @param int $expectedExceptionCode
+     *
+     * @throws HttpException
+     * @throws InternetMediaTypeParseException
+     * @throws InvalidResponseContentTypeException
+     * @throws NodeJslintOutputEntryParserException
+     * @throws NodeJslintOutputException
+     * @throws TransportException
+     */
+    public function testValidateThrowsException(
+        $urlToLint,
+        array $httpFixtures,
+        $validatorRawOutput,
+        $expectedException,
+        $expectedExceptionMessage,
+        $expectedExceptionCode
+    ) {
+        $this->appendHttpFixtures($httpFixtures);
+
+        if (!is_null($validatorRawOutput)) {
+            $this->setValidatorRawOutput($validatorRawOutput);
+        }
+
+        $this->expectException($expectedException);
+        $this->expectExceptionMessage($expectedExceptionMessage);
+        $this->expectExceptionCode($expectedExceptionCode);
+
+        $this->wrapper->validate($urlToLint);
+    }
+
+    /**
+     * @return array
+     */
+    public function validateThrowsExceptionDataProvider()
     {
-        $configurationValues = [
-            Configuration::CONFIG_KEY_FLAGS => [
-                JsLint::ANON => true,
+        return [
+            'incorrect node-jslint path' => [
+                'urlToLint' => self::FILE_URL_TO_LINT,
+                'httpFixtures' => [],
+                'validatorRawOutput' => FixtureLoader::load('IncorrectNodeJsPathOutput.txt'),
+                'expectedException' => NodeJslintOutputException::class,
+                'expectedExceptionMessage' =>
+                    'node-jslint not found at "/home/example/node_modules/jslint/bin/jslint.js"',
+                'expectedExceptionCode' => NodeJslintOutputException::CODE_INCORRECT_NODE_JS_PATH,
+            ],
+            'local file not found' => [
+                'urlToLint' => self::FILE_URL_TO_LINT,
+                'httpFixtures' => [],
+                'validatorRawOutput' => FixtureLoader::load('LocalFileNotFoundOutput.txt'),
+                'expectedException' => NodeJslintOutputException::class,
+                'expectedExceptionMessage' => 'Input file "/home/example/script.js" not found',
+                'expectedExceptionCode' => NodeJslintOutputException::CODE_INPUT_FILE_NOT_FOUND,
+            ],
+            'invalid remote file url' => [
+                'urlToLint' => self::INVALID_REMOTE_URL_TO_LINT,
+                'httpFixtures' => [],
+                'validatorRawOutput' => null,
+                'expectedException' => \InvalidArgumentException::class,
+                'expectedExceptionMessage' => 'Url "foo://example.com/example.js" is not valid',
+                'expectedExceptionCode' => 100
+            ],
+            'remote file http 404' => [
+                'urlToLint' => self::REMOTE_URL_TO_LINT,
+                'httpFixtures' => [
+                    new Response(404),
+                    new Response(404),
+                ],
+                'validatorRawOutput' => null,
+                'expectedException' => HttpException::class,
+                'expectedExceptionMessage' => 'Not Found',
+                'expectedExceptionCode' => 404
+            ],
+            'remote file curl 28' => [
+                'urlToLint' => self::REMOTE_URL_TO_LINT,
+                'httpFixtures' => [
+                    $curl28ConnectException = new ConnectException(
+                        'cURL error 28: Operation timeout',
+                        new Request('GET', self::REMOTE_URL_TO_LINT)
+                    ),
+                    $curl28ConnectException = new ConnectException(
+                        'cURL error 28: Operation timeout',
+                        new Request('GET', self::REMOTE_URL_TO_LINT)
+                    ),
+                ],
+                'validatorRawOutput' => null,
+                'expectedException' => TransportException::class,
+                'expectedExceptionMessage' => 'Operation timeout',
+                'expectedExceptionCode' => 28
             ],
         ];
-
-        $this->wrapper->createConfiguration($configurationValues);
-
-        $this->assertEquals(
-            [
-                JsLint::ANON => true,
-            ],
-            $this->wrapper->getConfiguration()->getFlags()
-        );
-    }
-
-    public function testGetLocalProxy()
-    {
-        $this->assertInstanceOf(LocalProxy::class, $this->wrapper->getLocalProxy());
     }
 
     /**
+     * @throws HttpException
+     * @throws InternetMediaTypeParseException
+     * @throws InvalidResponseContentTypeException
+     * @throws NodeJslintOutputEntryParserException
      * @throws NodeJslintOutputException
-     * @throws \webignition\WebResource\Exception
-     * @throws \webignition\WebResource\Exception\Exception
-     * @throws \webignition\WebResource\Exception\InvalidContentTypeException
-     */
-    public function testValidateLocalFileIncorrectNodeJslintPath()
-    {
-        $this->wrapper->getConfiguration()->setUrlToLint(self::FILE_URL_TO_LINT);
-
-        $this->setValidatorRawOutput(
-            $this->getFixture('IncorrectNodeJsPathOutput')
-        );
-
-        $this->expectException(NodeJslintOutputException::class);
-        $this->expectExceptionMessage('node-jslint not found at "/home/example/node_modules/jslint/bin/jslint.js"');
-
-        $this->wrapper->validate();
-    }
-
-    /**
-     * @throws NodeJslintOutputException
-     * @throws \webignition\WebResource\Exception
-     * @throws \webignition\WebResource\Exception\Exception
-     * @throws \webignition\WebResource\Exception\InvalidContentTypeException
-     */
-    public function testValidateLocalFileLocalFileNotFound()
-    {
-        $this->wrapper->getConfiguration()->setUrlToLint(self::FILE_URL_TO_LINT);
-
-        $this->setValidatorRawOutput(
-            $this->getFixture('LocalFileNotFoundOutput')
-        );
-
-        $this->expectException(NodeJslintOutputException::class);
-        $this->expectExceptionMessage('Input file "/home/example/script.js" not found');
-
-        $this->wrapper->validate();
-    }
-
-    /**
-     * @throws NodeJslintOutputException
-     * @throws \webignition\WebResource\Exception
-     * @throws \webignition\WebResource\Exception\Exception
-     * @throws \webignition\WebResource\Exception\InvalidContentTypeException
-     */
-    public function testValidateLocalFileSuccess()
-    {
-        $this->wrapper->getConfiguration()->setUrlToLint(self::FILE_URL_TO_LINT);
-
-        $this->setValidatorRawOutput(
-            $this->getFixture('ErrorFreeOutput')
-        );
-
-        $output = $this->wrapper->validate();
-
-        $this->assertInstanceOf(NodeJslintOutput::class, $output);
-    }
-
-    /**
-     * @throws NodeJslintOutputException
-     * @throws \webignition\WebResource\Exception
-     * @throws \webignition\WebResource\Exception\Exception
-     * @throws \webignition\WebResource\Exception\InvalidContentTypeException
-     */
-    public function testValidateRemoteFileInvalidUrl()
-    {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Url "'.self::INVALID_REMOTE_URL_TO_LINT.'" is not valid');
-        $this->expectExceptionCode(1);
-
-        $this->wrapper->getConfiguration()->setUrlToLint(self::INVALID_REMOTE_URL_TO_LINT);
-        $this->wrapper->validate();
-    }
-
-    /**
-     * @throws NodeJslintOutputException
-     * @throws \webignition\WebResource\Exception
-     */
-    public function testValidateRemoteFileHttpError()
-    {
-        $responseStatusCode = '404';
-
-        $this->wrapper->getConfiguration()->setUrlToLint(self::REMOTE_URL_TO_LINT);
-
-        $this->setHttpFixtures([
-            'HTTP/1.1 ' . $responseStatusCode,
-        ]);
-
-        $this->wrapper->getLocalProxy()->getConfiguration()->setHttpClient($this->httpClient);
-
-        try {
-            $this->wrapper->validate();
-            $this->fail('HTTP ' . $responseStatusCode . ' exception not thrown');
-        } catch (WebResourceException $webResourceException) {
-            $this->assertEquals($responseStatusCode, $webResourceException->getResponse()->getStatusCode());
-        }
-    }
-
-    /**
-     * @throws NodeJslintOutputException
-     * @throws WebResourceException
-     * @throws \webignition\WebResource\Exception
-     * @throws \webignition\WebResource\Exception\InvalidContentTypeException
-     */
-    public function testValidateRemoteFileCurlError()
-    {
-        $curlCode = '404';
-
-        $this->wrapper->getConfiguration()->setUrlToLint(self::REMOTE_URL_TO_LINT);
-
-        $this->setHttpFixtures([
-            new ConnectException(
-                'cURL error ' . $curlCode . ': message',
-                new Request('GET', 'http://example.com/')
-            )
-        ]);
-
-        $this->wrapper->getLocalProxy()->getConfiguration()->setHttpClient($this->httpClient);
-
-        try {
-            $this->wrapper->validate();
-            $this->fail('CURL ' . $curlCode . ' exception not thrown');
-        } catch (ConnectException $connectException) {
-            $this->assertEquals('cURL error ' . $curlCode . ': message', $connectException->getMessage());
-        }
-    }
-
-    /**
-     * @throws NodeJslintOutputException
-     * @throws \webignition\WebResource\Exception
-     * @throws \webignition\WebResource\Exception\Exception
-     * @throws \webignition\WebResource\Exception\InvalidContentTypeException
+     * @throws TransportException
      */
     public function testValidateRemoteFileSuccess()
     {
-        $this->setValidatorRawOutput($this->getFixture('LocalProxyErrorFreeOutput'));
+        $this->setValidatorRawOutput(FixtureLoader::load('LocalProxyErrorFreeOutput.txt'));
 
-        $this->setHttpFixtures([
-            "HTTP/1.0 200 OK\nContent-type: application/javascript;\n\nvar x = 1;"
+        $this->appendHttpFixtures([
+            new Response(200, ['content-type' => 'application/javascript']),
+            new Response(200, ['content-type' => 'application/javascript'], 'var x = 1;'),
         ]);
 
-        $this->wrapper->getConfiguration()->setUrlToLint(self::REMOTE_URL_TO_LINT);
-        $this->wrapper->getLocalProxy()->getConfiguration()->setHttpClient($this->httpClient);
-        $output = $this->wrapper->validate();
+        $output = $this->wrapper->validate(self::REMOTE_URL_TO_LINT);
 
         $this->assertEquals(self::REMOTE_URL_TO_LINT, $output->getStatusLine());
+    }
+
+    /**
+     * @throws HttpException
+     * @throws InternetMediaTypeParseException
+     * @throws InvalidResponseContentTypeException
+     * @throws NodeJslintOutputEntryParserException
+     * @throws NodeJslintOutputException
+     * @throws TransportException
+     */
+    public function testValidateLocalFileSuccess()
+    {
+        $this->setValidatorRawOutput(FixtureLoader::load('ErrorFreeOutput.txt'));
+
+        $output = $this->wrapper->validate(self::FILE_URL_TO_LINT);
+
+        $this->assertInstanceOf(NodeJslintOutput::class, $output);
     }
 }
